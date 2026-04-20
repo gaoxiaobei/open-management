@@ -1,12 +1,12 @@
 # Open Management
 
-国有企业综合管理系统平台文档仓库。
+国有企业综合管理系统平台。
 
-本仓库用于沉淀 `open-management` 项目的正式需求、设计与实施文档，作为项目立项、需求评审、设计评审、开发实施和交付验收的统一基线。
+本仓库包含 `open-management` 项目的需求/设计文档、数据库脚本、后端多模块工程（Spring Boot）、前端管理台（Vue 3）和 Windows 桌面客户端（Electron）。
 
 ## 1. 项目定位
 
-`open-management` 面向国有企业场景，采用“企业级 Web 平台 + Windows 客户端封装”的总体方案，先建设统一平台底座，再逐步扩展 OA、人事、资产、合同、采购、报表等业务模块。
+`open-management` 面向国有企业场景，采用"企业级 Web 平台 + Windows 客户端封装"的总体方案，先建设统一平台底座，再逐步扩展 OA、人事、资产、合同、采购、报表等业务模块。
 
 ## 2. 建设目标
 
@@ -20,8 +20,7 @@
 
 ### 3.1 前端
 
-- Vue 3
-- TypeScript
+- Vue 3 + TypeScript
 - Element Plus
 - Pinia
 - Vue Router
@@ -35,29 +34,62 @@
 ### 3.3 后端
 
 - Java 17
-- Spring Boot
-- Spring Security 或 Sa-Token
+- Spring Boot 3
+- Sa-Token（认证授权）
 - MyBatis-Plus
-- Flowable
+- Flowable（工作流）
 - Redis
 - RabbitMQ
 - MinIO
 
 ### 3.4 数据库
 
-- PostgreSQL
-- MySQL 8
+- MySQL 8（当前）
+- PostgreSQL（可选）
 
-## 4. 当前文档基线
+## 4. 当前开发状态
 
-当前仓库已整理为正式评审版文档包，版本基线为 `V1.0`，日期为 `2026-04-20`。文档默认状态为“评审版”，后续如进入开发基线，应在修订记录中显式升级版本。
+> 第一期平台底座正在建设中。详细进度见 **[TODO.md](TODO.md)**。
 
-## 5. 文档目录
+| 模块 | 状态 |
+|------|------|
+| om-common（公共基础） | ✅ 已完成 |
+| om-app（Spring Boot 主配置） | ✅ 已完成 |
+| om-auth（认证授权） | ✅ 已完成 |
+| om-system（用户/角色/菜单/字典/参数） | ✅ 已完成 |
+| om-org（组织架构） | 🔨 骨架完成，Service 待实现 |
+| om-audit（日志审计） | 🔨 骨架完成，Service & AOP 待实现 |
+| om-file（文件中心） | 🔨 骨架完成，MinIO 集成待实现 |
+| om-message（消息中心） | 🔨 骨架完成，Service 待实现 |
+| om-workflow（工作流） | 🔨 骨架完成，Flowable 集成待实现 |
+| om-hr / om-oa / om-asset | 🔨 骨架完成，Service 待实现 |
+| 前端（Vue 3） | 🔨 骨架完成，部分页面待补全 |
+| 桌面端（Electron） | 🔨 骨架完成，打包配置待完善 |
+| 数据库 DDL（Flyway，6 个脚本） | ✅ 全部已就位 |
+
+## 5. 仓库结构
 
 ```text
 .
 ├─ README.md
-└─ docs/
+├─ TODO.md                    # 开发进度追踪
+├─ backend/                   # Spring Boot 多模块后端
+│  ├─ om-common/              # 公共工具、统一响应、基类
+│  ├─ om-auth/                # 认证授权（Sa-Token + 验证码）
+│  ├─ om-system/              # 系统管理（用户/角色/菜单/字典/参数）
+│  ├─ om-org/                 # 组织架构（部门/岗位）
+│  ├─ om-audit/               # 日志审计（登录日志/操作日志）
+│  ├─ om-file/                # 文件中心（MinIO）
+│  ├─ om-message/             # 消息中心（待办/通知）
+│  ├─ om-workflow/            # 工作流（Flowable）
+│  ├─ om-hr/                  # 人事管理
+│  ├─ om-oa/                  # OA 审批（请假/出差/报销）
+│  ├─ om-asset/               # 资产管理
+│  └─ om-app/                 # Spring Boot 启动模块
+├─ frontend/                  # Vue 3 + TypeScript 管理台
+├─ desktop/                   # Electron Windows 客户端
+├─ sql/                       # Flyway 数据库迁移脚本
+└─ docs/                      # 需求、架构、设计文档
    ├─ 00-index.md
    ├─ 01-user-stories.md
    ├─ 02-functional-specification.md
@@ -71,8 +103,50 @@
    └─ 10-roadmap.md
 ```
 
-## 6. 文档入口
+## 6. 快速开始（本地开发）
 
+### 前置依赖
+
+| 工具 | 版本 |
+|------|------|
+| JDK | 17+ |
+| Maven | 3.9+ |
+| Node.js | 18+ |
+| MySQL | 8.0+ |
+| Redis | 6+ |
+| MinIO | 最新版 |
+| RabbitMQ | 3.x |
+
+### 后端启动
+
+```bash
+# 1. 创建数据库
+mysql -u root -p -e "CREATE DATABASE open_management CHARACTER SET utf8mb4;"
+
+# 2. 按需修改数据源配置
+#    backend/om-app/src/main/resources/application-dev.yml
+
+# 3. 编译并启动（Flyway 会自动执行 sql/ 下的迁移脚本）
+cd backend
+mvn clean package -DskipTests
+java -jar om-app/target/om-app-1.0.0-SNAPSHOT.jar
+```
+
+启动后 API 文档：http://localhost:8080/doc.html
+
+### 前端启动
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+默认访问：http://localhost:5173
+
+## 7. 文档入口
+
+- [开发进度追踪](TODO.md)
 - [文档目录](docs/00-index.md)
 - [用户故事](docs/01-user-stories.md)
 - [功能规格说明书](docs/02-functional-specification.md)
@@ -82,18 +156,4 @@
 - [模块设计说明书](docs/06-module-design.md)
 - [接口设计说明书](docs/07-api-specification.md)
 - [项目实施计划](docs/08-implementation-plan.md)
-- [文档控制说明](docs/09-document-control.md)
 - [开发路线图](docs/10-roadmap.md)
-
-## 7. 文档使用建议
-
-- 立项和需求评审阶段：优先阅读用户故事、FSD、SRS
-- 设计评审阶段：优先阅读架构、数据库、模块、接口文档
-- 项目管理和交付阶段：优先阅读实施计划和文档控制说明
-
-## 8. 后续建议
-
-- 增补数据库初始化脚本和菜单权限初始化脚本
-- 建立后端多模块工程骨架
-- 建立前端管理台与 Electron 客户端骨架
-- 输出 OpenAPI 完整 YAML 和数据库 DDL 脚本
