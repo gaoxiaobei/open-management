@@ -11,4 +11,6 @@ public interface MessageService {
     void markRead(Long messageId);
 
     PageResult<SysMessage> myMessages(Long userId, PageQuery pageQuery);
+
+    long unreadCount(Long userId);
 }

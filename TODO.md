@@ -108,9 +108,9 @@
 | 后端 `om-file` | `FileStorageService/Impl` — MinIO 上传/下载/预签名 URL、DB 记录 | ✅ |
 | 后端 `om-file` | `FileController` — `/api/files/upload`、`/api/files/{id}/url`、`DELETE /api/files/{id}` | ✅（Controller 骨架） |
 | 后端 `om-message` | 实体 `SysMessage`；`MessageMapper` | ✅ |
-| 后端 `om-message` | `MessageService/Impl` — 发送、已读/未读、分页查询 | 🔨 |
+| 后端 `om-message` | `MessageService/Impl` — 发送、已读/未读、分页查询 | ✅ |
 | 后端 `om-message` | `TodoGenerateService` — 待办生成 & 完成 | ⬜ |
-| 后端 `om-message` | `MessageController` — 消息列表、标记已读、未读数量 | ✅（Controller 骨架） |
+| 后端 `om-message` | `MessageController` — 消息列表、标记已读、未读数量 | ✅ |
 | 前端 | 顶部消息中心入口、首页工作台统计图 | ⬜ |
 
 ---
@@ -210,7 +210,7 @@
 | om-org | ✅ 服务实现完成，前端岗位页待补全 | 70% |
 | om-audit | ✅ 服务与 AOP 实现完成，前端页面待补全 | 70% |
 | om-file | ✅ MinIO 集成与文件服务实现完成 | 70% |
-| om-message | 🔨 骨架完成，Service 待实现 | 30% |
+| om-message | 🔨 `TodoGenerateService` 待实现 | 60% |
 | om-workflow | 🔨 骨架完成，Flowable 集成待实现 | 20% |
 | om-hr | 🔨 骨架完成，Service 待实现 | 30% |
 | om-oa | 🔨 骨架完成，Service 待实现 | 25% |

@@ -1,0 +1,25 @@
+# Maven build output
+**/target/
+
+# IDE files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+*.class
+
+# Node / frontend
+node_modules/
+dist/
+
+# Electron build
+desktop/dist/
+desktop/out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

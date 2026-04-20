@@ -1,6 +1,7 @@
 package com.openmanagement.message.controller;
 
 import com.openmanagement.common.base.PageQuery;
+import com.openmanagement.common.context.UserContext;
 import com.openmanagement.common.result.PageResult;
 import com.openmanagement.common.result.R;
 import com.openmanagement.message.domain.entity.SysMessage;
@@ -16,7 +17,8 @@ public class MessageController {
     private final MessageService messageService;
 
     @GetMapping("/my")
-    public R<PageResult<SysMessage>> myMessages(@RequestParam Long userId, PageQuery pageQuery) {
+    public R<PageResult<SysMessage>> myMessages(PageQuery pageQuery) {
+        Long userId = UserContext.getUserId();
         return R.ok(messageService.myMessages(userId, pageQuery));
     }
 
@@ -24,5 +26,11 @@ public class MessageController {
     public R<Void> markRead(@PathVariable Long id) {
         messageService.markRead(id);
         return R.ok();
+    }
+
+    @GetMapping("/unread-count")
+    public R<Long> unreadCount() {
+        Long userId = UserContext.getUserId();
+        return R.ok(messageService.unreadCount(userId));
     }
 }
