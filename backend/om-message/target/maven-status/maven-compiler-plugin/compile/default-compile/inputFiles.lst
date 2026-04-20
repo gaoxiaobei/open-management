@@ -1,0 +1,5 @@
+/home/runner/work/open-management/open-management/backend/om-message/src/main/java/com/openmanagement/message/service/MessageService.java
+/home/runner/work/open-management/open-management/backend/om-message/src/main/java/com/openmanagement/message/service/impl/MessageServiceImpl.java
+/home/runner/work/open-management/open-management/backend/om-message/src/main/java/com/openmanagement/message/mapper/MessageMapper.java
+/home/runner/work/open-management/open-management/backend/om-message/src/main/java/com/openmanagement/message/controller/MessageController.java
+/home/runner/work/open-management/open-management/backend/om-message/src/main/java/com/openmanagement/message/domain/entity/SysMessage.java

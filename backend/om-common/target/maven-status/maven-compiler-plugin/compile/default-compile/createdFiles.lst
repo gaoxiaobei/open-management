@@ -1,0 +1,14 @@
+com/openmanagement/common/result/PageResult.class
+com/openmanagement/common/util/IpUtils.class
+com/openmanagement/common/context/DataPermissionContext.class
+com/openmanagement/common/annotation/OperateLog.class
+com/openmanagement/common/exception/BusinessException.class
+com/openmanagement/common/enums/ErrorCode.class
+com/openmanagement/common/exception/GlobalExceptionHandler.class
+com/openmanagement/common/context/DataPermissionContext$DataScope.class
+com/openmanagement/common/context/UserContext.class
+com/openmanagement/common/result/R.class
+com/openmanagement/common/base/PageQuery.class
+com/openmanagement/common/constant/CommonConstants.class
+com/openmanagement/common/annotation/DataPermission.class
+com/openmanagement/common/base/BaseEntity.class

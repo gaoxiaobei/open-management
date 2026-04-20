@@ -1,0 +1,5 @@
+com/openmanagement/message/domain/entity/SysMessage.class
+com/openmanagement/message/controller/MessageController.class
+com/openmanagement/message/mapper/MessageMapper.class
+com/openmanagement/message/service/MessageService.class
+com/openmanagement/message/service/impl/MessageServiceImpl.class
