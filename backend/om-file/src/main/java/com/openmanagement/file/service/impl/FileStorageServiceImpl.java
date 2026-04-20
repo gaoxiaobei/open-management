@@ -5,14 +5,15 @@ import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.file.domain.entity.SysFile;
 import com.openmanagement.file.mapper.FileMapper;
 import com.openmanagement.file.service.FileStorageService;
+import io.minio.BucketExistsArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import io.minio.StatObjectArgs;
+import io.minio.errors.ErrorResponseException;
 import io.minio.http.Method;
-import io.minio.messages.Bucket;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,13 +25,17 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class FileStorageServiceImpl implements FileStorageService {
+
+    private static final int PRESIGNED_URL_EXPIRE_SECONDS = 60 * 60;
+    private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
     private final MinioClient minioClient;
     private final FileMapper fileMapper;
@@ -49,7 +54,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                 ? file.getOriginalFilename()
                 : "unknown";
         String fileName = buildStoredFileName(originalName);
-        String filePath = LocalDate.now() + "/" + fileName;
+        String filePath = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE) + "/" + fileName;
 
         ensureBucketExists();
 
@@ -59,7 +64,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                             .bucket(bucketName)
                             .object(filePath)
                             .stream(inputStream, file.getSize(), -1)
-                            .contentType(file.getContentType())
+                            .contentType(resolveContentType(file.getContentType()))
                             .build());
 
             SysFile entity = new SysFile();
@@ -67,7 +72,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             entity.setOriginalName(originalName);
             entity.setFilePath(filePath);
             entity.setFileSize(file.getSize());
-            entity.setMimeType(file.getContentType());
+            entity.setMimeType(resolveContentType(file.getContentType()));
             entity.setBizType(bizType);
             entity.setBizId(bizId);
             fileMapper.insert(entity);
@@ -113,8 +118,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     private void ensureBucketExists() {
         try {
-            List<Bucket> buckets = minioClient.listBuckets();
-            boolean exists = buckets.stream().map(Bucket::name).anyMatch(bucketName::equals);
+            boolean exists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
             if (!exists) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
             }
@@ -134,16 +138,23 @@ public class FileStorageServiceImpl implements FileStorageService {
                             .method(Method.GET)
                             .bucket(bucketName)
                             .object(file.getFilePath())
-                            .extraQueryParams(
-                                    java.util.Map.of("response-content-disposition", "attachment; filename*=UTF-8''"
-                                            + URLEncoder.encode(
-                                            Objects.requireNonNullElse(file.getOriginalName(), file.getFileName()),
-                                            StandardCharsets.UTF_8)))
-                            .expiry(60 * 60)
+                            .extraQueryParams(buildDownloadQuery(file))
+                            .expiry(PRESIGNED_URL_EXPIRE_SECONDS)
                             .build());
+        } catch (ErrorResponseException e) {
+            if (e.errorResponse() != null && "NoSuchKey".equals(e.errorResponse().code())) {
+                throw new BusinessException(ErrorCode.FILE_NOT_FOUND.getCode(), ErrorCode.FILE_NOT_FOUND.getMessage());
+            }
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR.getCode(), "获取文件访问地址失败", e);
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.INTERNAL_ERROR.getCode(), "获取文件访问地址失败", e);
         }
+    }
+
+    private Map<String, String> buildDownloadQuery(SysFile file) {
+        String originalName = Objects.requireNonNullElse(file.getOriginalName(), file.getFileName());
+        String encodedName = URLEncoder.encode(originalName, StandardCharsets.UTF_8).replace("+", "%20");
+        return Map.of("response-content-disposition", "attachment; filename*=UTF-8''" + encodedName);
     }
 
     private String buildStoredFileName(String originalName) {
@@ -153,5 +164,9 @@ public class FileStorageServiceImpl implements FileStorageService {
             extension = originalName.substring(dotIndex);
         }
         return UUID.randomUUID().toString().replace("-", "") + extension;
+    }
+
+    private String resolveContentType(String contentType) {
+        return StringUtils.hasText(contentType) ? contentType : DEFAULT_CONTENT_TYPE;
     }
 }
