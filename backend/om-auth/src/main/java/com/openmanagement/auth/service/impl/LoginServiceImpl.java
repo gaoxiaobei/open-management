@@ -6,9 +6,12 @@ import com.openmanagement.auth.dto.LoginResponse;
 import com.openmanagement.auth.service.CaptchaService;
 import com.openmanagement.auth.service.LoginService;
 import com.openmanagement.auth.service.PasswordPolicyService;
+import com.openmanagement.audit.domain.entity.SysLoginLog;
+import com.openmanagement.audit.service.LoginLogService;
 import com.openmanagement.common.constant.CommonConstants;
 import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.exception.BusinessException;
+import com.openmanagement.common.util.IpUtils;
 import com.openmanagement.system.domain.entity.SysMenu;
 import com.openmanagement.system.domain.entity.SysRole;
 import com.openmanagement.system.domain.entity.SysUser;
@@ -18,7 +21,10 @@ import com.openmanagement.system.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -33,32 +39,39 @@ public class LoginServiceImpl implements LoginService {
     private final RoleService roleService;
     private final MenuService menuService;
     private final StringRedisTemplate stringRedisTemplate;
+    private final LoginLogService loginLogService;
 
     @Override
     public LoginResponse login(LoginRequest request) {
         if (!captchaService.validateCaptcha(request.getCaptchaKey(), request.getCaptcha())) {
+            recordLoginLog(request.getUsername(), null, "FAIL", ErrorCode.CAPTCHA_ERROR.getMessage());
             throw new BusinessException(ErrorCode.CAPTCHA_ERROR.getCode(), ErrorCode.CAPTCHA_ERROR.getMessage());
         }
         String failKey = CommonConstants.LOGIN_FAIL_CACHE_KEY + request.getUsername();
         String failCountStr = stringRedisTemplate.opsForValue().get(failKey);
         int failCount = failCountStr == null ? 0 : Integer.parseInt(failCountStr);
         if (failCount >= CommonConstants.LOGIN_FAIL_MAX) {
+            recordLoginLog(request.getUsername(), null, "FAIL", ErrorCode.ACCOUNT_LOCKED.getMessage());
             throw new BusinessException(ErrorCode.ACCOUNT_LOCKED.getCode(), ErrorCode.ACCOUNT_LOCKED.getMessage());
         }
         SysUser user = userService.getUserByUsername(request.getUsername());
         if (user == null) {
             incrementFailCount(failKey, failCount);
+            recordLoginLog(request.getUsername(), null, "FAIL", ErrorCode.USER_NOT_FOUND.getMessage());
             throw new BusinessException(ErrorCode.USER_NOT_FOUND.getCode(), ErrorCode.USER_NOT_FOUND.getMessage());
         }
         if (CommonConstants.STATUS_DISABLED.equals(user.getStatus())) {
+            recordLoginLog(user.getUsername(), user.getId(), "FAIL", ErrorCode.USER_DISABLED.getMessage());
             throw new BusinessException(ErrorCode.USER_DISABLED.getCode(), ErrorCode.USER_DISABLED.getMessage());
         }
         if (!passwordPolicyService.matches(request.getPassword(), user.getPasswordHash())) {
             incrementFailCount(failKey, failCount);
+            recordLoginLog(user.getUsername(), user.getId(), "FAIL", ErrorCode.PASSWORD_ERROR.getMessage());
             throw new BusinessException(ErrorCode.PASSWORD_ERROR.getCode(), ErrorCode.PASSWORD_ERROR.getMessage());
         }
         stringRedisTemplate.delete(failKey);
         StpUtil.login(user.getId());
+        recordLoginLog(user.getUsername(), user.getId(), "SUCCESS", "登录成功");
         String token = StpUtil.getTokenValue();
         List<SysRole> roles = roleService.listRolesByUserId(user.getId());
         List<String> roleNames = roles.stream().map(SysRole::getRoleCode).collect(Collectors.toList());
@@ -95,6 +108,26 @@ public class LoginServiceImpl implements LoginService {
         int newCount = currentCount + 1;
         stringRedisTemplate.opsForValue().set(failKey, String.valueOf(newCount),
                 CommonConstants.LOGIN_LOCK_SECONDS, TimeUnit.SECONDS);
+    }
+
+    private void recordLoginLog(String username, Long userId, String loginStatus, String msg) {
+        SysLoginLog log = new SysLoginLog();
+        log.setUsername(username);
+        log.setUserId(userId);
+        log.setLoginStatus(loginStatus);
+        log.setMsg(msg);
+        log.setLoginTime(LocalDateTime.now());
+        ServletRequestAttributes attrs = null;
+        if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes servletRequestAttributes) {
+            attrs = servletRequestAttributes;
+        }
+        if (attrs != null) {
+            String userAgent = attrs.getRequest().getHeader("User-Agent");
+            log.setIpAddr(IpUtils.getIpAddr(attrs.getRequest()));
+            log.setBrowser(userAgent);
+            log.setOs(userAgent);
+        }
+        loginLogService.recordLogin(log);
     }
 
     private List<LoginResponse.MenuVO> toMenuVOList(List<SysMenu> menus) {
