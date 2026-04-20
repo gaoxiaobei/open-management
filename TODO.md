@@ -76,8 +76,8 @@
 | 层次 | 交付项 | 状态 |
 |------|--------|------|
 | 后端 `om-org` | 实体 `SysDept`、`SysPosition`；Mapper `DeptMapper`、`PositionMapper` | ✅ |
-| 后端 `om-org` | `DeptService/Impl` — 部门树查询、CRUD | 🔨 |
-| 后端 `om-org` | `PositionService/Impl` — 岗位分页查询、CRUD | 🔨 |
+| 后端 `om-org` | `DeptService/Impl` — 部门树查询、CRUD | ✅ |
+| 后端 `om-org` | `PositionService/Impl` — 岗位分页查询、CRUD | ✅ |
 | 后端 `om-org` | `DeptController` — `/api/org/depts/tree` 等接口 | ✅（Controller 骨架） |
 | 后端 `om-org` | `PositionController` — `/api/org/positions` 等接口 | ✅（Controller 骨架） |
 | 前端 | 部门树管理页骨架 | ✅ |
@@ -91,9 +91,9 @@
 |------|--------|------|
 | 数据库 | `sys_login_log`、`sys_operate_log` 表（含于 V1.0.0） | ✅ |
 | 后端 `om-audit` | 实体 `SysLoginLog`、`SysOperateLog`；Mapper | ✅ |
-| 后端 `om-audit` | `LoginLogService/Impl` — 保存登录日志、分页查询 | 🔨 |
-| 后端 `om-audit` | `OperateLogService/Impl` — 保存操作日志、分页查询 | 🔨 |
-| 后端 `om-audit` | `@OperateLog` AOP 切面（`OperateLogAspect`） | ⬜ |
+| 后端 `om-audit` | `LoginLogService/Impl` — 保存登录日志、分页查询 | ✅ |
+| 后端 `om-audit` | `OperateLogService/Impl` — 保存操作日志、分页查询 | ✅ |
+| 后端 `om-audit` | `@OperateLog` AOP 切面（`OperateLogAspect`） | ✅ |
 | 后端 `om-audit` | `AuditQueryController` — 登录日志列表、操作日志列表接口 | ✅（Controller 骨架） |
 | 前端 | 登录日志列表页、操作日志列表页 | ⬜ |
 
@@ -189,14 +189,13 @@
 
 优先级按交付风险排序：
 
-1. **`om-audit`** — 实现 `LoginLogServiceImpl.saveLog()`、`OperateLogServiceImpl.saveLog()` 及分页查询；补全 `OperateLogAspect` AOP 切面（依赖 `@OperateLog` 注解已就位）
-2. **`om-org`** — 实现 `DeptServiceImpl.getDeptTree()` 递归树构建和 `PositionServiceImpl` 分页查询
-3. **`om-file`** — 实现 `FileStorageServiceImpl`（MinIO 上传/删除/预签名 URL）
-4. **`om-message`** — 实现 `MessageServiceImpl` 全部方法，新建 `TodoGenerateService`
-5. **`om-workflow`** — 完成 Flowable 配置，实现 `ProcessInstanceServiceImpl` 和 `TaskServiceImpl`
-6. **`om-hr` / `om-oa` / `om-asset`** — 补全各 ServiceImpl 的数据库操作
-7. **前端** — 补全菜单管理页、字典管理页、岗位管理页；完善消息中心、待办页；接入真实后端接口
-8. **数据权限** — 实现 `@DataPermission` AOP 切面（SELF / DEPT / DEPT_AND_CHILD / ALL 四种策略）
+1. **数据权限** — 实现 `@DataPermission` AOP 切面（SELF / DEPT / DEPT_AND_CHILD / ALL 四种策略）
+2. **`om-file`** — 实现 `FileStorageServiceImpl`（MinIO 上传/删除/预签名 URL）
+3. **`om-message`** — 实现 `MessageServiceImpl` 全部方法，新建 `TodoGenerateService`
+4. **`om-workflow`** — 完成 Flowable 配置，实现 `ProcessInstanceServiceImpl` 和 `TaskServiceImpl`
+5. **`om-hr` / `om-oa` / `om-asset`** — 补全各 ServiceImpl 的数据库操作
+6. **前端** — 补全菜单管理页、字典管理页、岗位管理页；完善消息中心、待办页；接入真实后端接口
+7. **测试完善** — 为已完成的组织架构与日志审计服务补充单元测试和联调用例
 
 ---
 
@@ -208,8 +207,8 @@
 | om-app | ✅ 已完成 | 100% |
 | om-auth | ✅ 已完成 | 100% |
 | om-system | ✅ 已完成 | 100% |
-| om-org | 🔨 骨架完成，Service 待实现 | 40% |
-| om-audit | 🔨 骨架完成，Service & AOP 待实现 | 30% |
+| om-org | ✅ 服务实现完成，前端岗位页待补全 | 70% |
+| om-audit | ✅ 服务与 AOP 实现完成，前端页面待补全 | 70% |
 | om-file | 🔨 骨架完成，MinIO 集成待实现 | 30% |
 | om-message | 🔨 骨架完成，Service 待实现 | 30% |
 | om-workflow | 🔨 骨架完成，Flowable 集成待实现 | 20% |

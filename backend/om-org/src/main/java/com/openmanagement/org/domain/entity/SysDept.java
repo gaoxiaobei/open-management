@@ -1,11 +1,14 @@
 package com.openmanagement.org.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.openmanagement.common.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,4 +31,7 @@ public class SysDept extends BaseEntity {
     private Integer sortOrder;
 
     private String status;
+
+    @TableField(exist = false)
+    private List<SysDept> children;
 }
