@@ -18,4 +18,6 @@ public class UserVO {
     private String positionName;
     private String status;
     private LocalDateTime lastLoginTime;
+    private java.util.List<Long> roleIds;
+    private java.util.List<String> roleNames;
 }
