@@ -105,7 +105,7 @@
 |------|--------|------|
 | 数据库 | `sys_file`、`sys_message` 表（含于 V1.0.0） | ✅ |
 | 后端 `om-file` | 实体 `SysFile`；`FileMapper` | ✅ |
-| 后端 `om-file` | `FileStorageService/Impl` — MinIO 上传/下载/预签名 URL、DB 记录 | 🔨 |
+| 后端 `om-file` | `FileStorageService/Impl` — MinIO 上传/下载/预签名 URL、DB 记录 | ✅ |
 | 后端 `om-file` | `FileController` — `/api/files/upload`、`/api/files/{id}/url`、`DELETE /api/files/{id}` | ✅（Controller 骨架） |
 | 后端 `om-message` | 实体 `SysMessage`；`MessageMapper` | ✅ |
 | 后端 `om-message` | `MessageService/Impl` — 发送、已读/未读、分页查询 | 🔨 |
@@ -190,12 +190,12 @@
 优先级按交付风险排序：
 
 1. **数据权限** — 实现 `@DataPermission` AOP 切面（SELF / DEPT / DEPT_AND_CHILD / ALL 四种策略）
-2. **`om-file`** — 实现 `FileStorageServiceImpl`（MinIO 上传/删除/预签名 URL）
-3. **`om-message`** — 实现 `MessageServiceImpl` 全部方法，新建 `TodoGenerateService`
-4. **`om-workflow`** — 完成 Flowable 配置，实现 `ProcessInstanceServiceImpl` 和 `TaskServiceImpl`
-5. **`om-hr` / `om-oa` / `om-asset`** — 补全各 ServiceImpl 的数据库操作
-6. **前端** — 补全菜单管理页、字典管理页、岗位管理页；完善消息中心、待办页；接入真实后端接口
-7. **测试完善** — 为已完成的组织架构与日志审计服务补充单元测试和联调用例
+2. **`om-message`** — 实现 `MessageServiceImpl` 全部方法，新建 `TodoGenerateService`
+3. **`om-workflow`** — 完成 Flowable 配置，实现 `ProcessInstanceServiceImpl` 和 `TaskServiceImpl`
+4. **`om-hr` / `om-oa` / `om-asset`** — 补全各 ServiceImpl 的数据库操作
+5. **前端** — 补全菜单管理页、字典管理页、岗位管理页；完善消息中心、待办页；接入真实后端接口
+6. **测试完善** — 为已完成的组织架构与日志审计服务补充单元测试和联调用例
+7. **文件模块联调** — 增加上传/删除/预签名 URL 接口集成测试
 
 ---
 
@@ -209,7 +209,7 @@
 | om-system | ✅ 已完成 | 100% |
 | om-org | ✅ 服务实现完成，前端岗位页待补全 | 70% |
 | om-audit | ✅ 服务与 AOP 实现完成，前端页面待补全 | 70% |
-| om-file | 🔨 骨架完成，MinIO 集成待实现 | 30% |
+| om-file | ✅ MinIO 集成与文件服务实现完成 | 70% |
 | om-message | 🔨 骨架完成，Service 待实现 | 30% |
 | om-workflow | 🔨 骨架完成，Flowable 集成待实现 | 20% |
 | om-hr | 🔨 骨架完成，Service 待实现 | 30% |
