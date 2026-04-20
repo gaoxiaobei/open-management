@@ -7,6 +7,11 @@ export interface LoginParams {
   captchaKey?: string
 }
 
+export interface CaptchaResult {
+  captchaKey: string
+  captchaImage: string
+}
+
 export interface LoginResult {
   token: string
   userInfo: {
@@ -24,4 +29,8 @@ export function login(params: LoginParams) {
 
 export function logout() {
   return request.post('/auth/logout')
+}
+
+export function getCaptcha() {
+  return request.get<CaptchaResult>('/auth/captcha')
 }

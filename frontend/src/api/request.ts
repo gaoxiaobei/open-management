@@ -21,7 +21,7 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   (response: AxiosResponse<R>) => {
     const { code, message, data } = response.data
-    if (code === 0) {
+    if (code === 200) {
       return data as unknown as AxiosResponse
     }
     if (code === 401) {
