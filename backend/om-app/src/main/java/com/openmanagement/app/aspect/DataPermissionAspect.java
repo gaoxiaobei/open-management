@@ -18,12 +18,12 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayDeque;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,6 +32,9 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class DataPermissionAspect {
+
+    private static final String DEFAULT_DEPT_COLUMN = "dept_id";
+    private static final String DEFAULT_USER_COLUMN = "created_by";
 
     private final RoleUserMapper roleUserMapper;
     private final RoleMapper roleMapper;
@@ -45,7 +48,7 @@ public class DataPermissionAspect {
             return joinPoint.proceed();
         }
 
-        DataPermissionContext.set(buildDataScope(userId));
+        DataPermissionContext.set(buildDataScope(userId, dataPermission));
         try {
             return joinPoint.proceed();
         } finally {
@@ -53,11 +56,14 @@ public class DataPermissionAspect {
         }
     }
 
-    private DataPermissionContext.DataScope buildDataScope(Long userId) {
+    private DataPermissionContext.DataScope buildDataScope(Long userId, DataPermission dataPermission) {
+        String deptAlias = StringUtils.hasText(dataPermission.deptAlias()) ? dataPermission.deptAlias() : DEFAULT_DEPT_COLUMN;
+        String userAlias = StringUtils.hasText(dataPermission.userAlias()) ? dataPermission.userAlias() : DEFAULT_USER_COLUMN;
+
         List<SysRoleUser> roleUsers = roleUserMapper.selectList(
                 new LambdaQueryWrapper<SysRoleUser>().eq(SysRoleUser::getUserId, userId));
         if (roleUsers.isEmpty()) {
-            return new DataPermissionContext.DataScope(false, Set.of(), userId);
+            return new DataPermissionContext.DataScope(false, Set.of(), userId, deptAlias, userAlias);
         }
 
         List<Long> roleIds = roleUsers.stream().map(SysRoleUser::getRoleId).collect(Collectors.toList());
@@ -69,7 +75,7 @@ public class DataPermissionAspect {
                 .collect(Collectors.toSet());
 
         if (scopes.contains(CommonConstants.DATA_SCOPE_ALL)) {
-            return new DataPermissionContext.DataScope(true, Set.of(), null);
+            return new DataPermissionContext.DataScope(true, Set.of(), null, deptAlias, userAlias);
         }
 
         SysUser currentUser = userMapper.selectById(userId);
@@ -91,31 +97,25 @@ public class DataPermissionAspect {
             selfUserId = userId;
         }
 
-        return new DataPermissionContext.DataScope(false, deptIds, selfUserId);
+        return new DataPermissionContext.DataScope(false, deptIds, selfUserId, deptAlias, userAlias);
     }
 
     private Set<Long> findDeptAndChildren(Long rootDeptId) {
-        List<SysDept> allDepts = deptMapper.selectList(new LambdaQueryWrapper<>());
-        Map<Long, List<Long>> parentChildrenMap = new HashMap<>();
-        for (SysDept dept : allDepts) {
-            if (dept.getParentId() == null || dept.getId() == null) {
-                continue;
-            }
-            parentChildrenMap.computeIfAbsent(dept.getParentId(), k -> new java.util.ArrayList<>()).add(dept.getId());
-        }
-
         Set<Long> result = new HashSet<>();
-        ArrayDeque<Long> queue = new ArrayDeque<>();
-        queue.add(rootDeptId);
+        ArrayDeque<Long> pending = new ArrayDeque<>();
+        pending.add(rootDeptId);
 
-        while (!queue.isEmpty()) {
-            Long current = queue.poll();
-            if (!result.add(current)) {
-                continue;
-            }
-            List<Long> children = parentChildrenMap.get(current);
-            if (children != null) {
-                queue.addAll(children);
+        while (!pending.isEmpty()) {
+            List<Long> currentLevel = new ArrayList<>(pending);
+            pending.clear();
+            result.addAll(currentLevel);
+
+            List<SysDept> children = deptMapper.selectList(
+                    new LambdaQueryWrapper<SysDept>().in(SysDept::getParentId, currentLevel).select(SysDept::getId));
+            for (SysDept child : children) {
+                if (child.getId() != null && !result.contains(child.getId())) {
+                    pending.add(child.getId());
+                }
             }
         }
 

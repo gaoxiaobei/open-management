@@ -32,6 +32,8 @@ public final class DataPermissionContext {
         private boolean allData;
         private Set<Long> deptIds;
         private Long userId;
+        private String deptAlias;
+        private String userAlias;
 
         public Set<Long> safeDeptIds() {
             return deptIds == null ? Collections.emptySet() : deptIds;
