@@ -43,4 +43,21 @@ public class UserController {
         userService.resetPassword(id);
         return R.ok();
     }
+
+    @GetMapping("/{id}")
+    public R<UserVO> getUserById(@PathVariable Long id) {
+        return R.ok(userService.getUserById(id));
+    }
+
+    @PutMapping("/{id}/status")
+    public R<Void> changeUserStatus(@PathVariable Long id, @RequestParam String status) {
+        userService.changeUserStatus(id, status);
+        return R.ok();
+    }
+
+    @DeleteMapping("/{id}")
+    public R<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return R.ok();
+    }
 }

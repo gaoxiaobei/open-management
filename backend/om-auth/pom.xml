@@ -20,6 +20,11 @@
             <artifactId>om-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.openmanagement</groupId>
+            <artifactId>om-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot3-starter</artifactId>
         </dependency>

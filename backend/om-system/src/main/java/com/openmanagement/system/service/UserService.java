@@ -7,6 +7,8 @@ import com.openmanagement.system.domain.entity.SysUser;
 import com.openmanagement.system.dto.UserCreateRequest;
 import com.openmanagement.system.vo.UserVO;
 
+import java.util.List;
+
 public interface UserService extends IService<SysUser> {
 
     PageResult<UserVO> pageUsers(PageQuery pageQuery, String username, String realName, Long deptId, String status);
@@ -16,4 +18,14 @@ public interface UserService extends IService<SysUser> {
     void updateUser(Long id, UserCreateRequest request);
 
     void resetPassword(Long id);
+
+    UserVO getUserById(Long id);
+
+    SysUser getUserByUsername(String username);
+
+    List<Long> getUserRoleIds(Long userId);
+
+    void changeUserStatus(Long id, String status);
+
+    void deleteUser(Long id);
 }

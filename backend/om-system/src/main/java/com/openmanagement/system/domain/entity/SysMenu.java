@@ -1,6 +1,7 @@
 package com.openmanagement.system.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.openmanagement.common.base.BaseEntity;
@@ -32,4 +33,7 @@ public class SysMenu extends BaseEntity {
     private Integer sortOrder;
 
     private String status;
+
+    @TableField(exist = false)
+    private java.util.List<SysMenu> children;
 }
