@@ -6,12 +6,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.openmanagement.common.base.PageQuery;
 import com.openmanagement.common.context.UserContext;
+import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.result.PageResult;
 import com.openmanagement.message.domain.entity.SysMessage;
 import com.openmanagement.message.mapper.MessageMapper;
 import com.openmanagement.message.service.MessageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -21,9 +23,22 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, SysMessage> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void send(Long receiverId, String title, String content, String msgType) {
+        if (receiverId == null) {
+            throw new BusinessException("receiverId must not be null");
+        }
+        if (!StringUtils.hasText(title)) {
+            throw new BusinessException("title must not be blank");
+        }
+        if (!StringUtils.hasText(msgType)) {
+            throw new BusinessException("msgType must not be blank");
+        }
+        Long senderId = UserContext.getUserId();
+        if (senderId == null) {
+            throw new BusinessException("Current user context is required to send a message");
+        }
         SysMessage message = new SysMessage();
         message.setReceiverId(receiverId);
-        message.setSenderId(UserContext.getUserId());
+        message.setSenderId(senderId);
         message.setTitle(title);
         message.setContent(content);
         message.setMsgType(msgType);
@@ -35,11 +50,17 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, SysMessage> i
     @Transactional(rollbackFor = Exception.class)
     public void markRead(Long messageId) {
         Long currentUserId = UserContext.getUserId();
-        update(new LambdaUpdateWrapper<SysMessage>()
+        if (currentUserId == null) {
+            throw new BusinessException("Current user context is required to mark a message as read");
+        }
+        boolean updated = update(new LambdaUpdateWrapper<SysMessage>()
                 .eq(SysMessage::getId, messageId)
-                .eq(currentUserId != null, SysMessage::getReceiverId, currentUserId)
+                .eq(SysMessage::getReceiverId, currentUserId)
                 .set(SysMessage::getIsRead, 1)
                 .set(SysMessage::getReadTime, LocalDateTime.now()));
+        if (!updated) {
+            throw new BusinessException("Message not found or not owned by current user");
+        }
     }
 
     @Override
