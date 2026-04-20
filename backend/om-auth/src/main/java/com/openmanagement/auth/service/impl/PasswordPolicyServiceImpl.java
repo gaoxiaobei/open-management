@@ -28,9 +28,15 @@ public class PasswordPolicyServiceImpl implements PasswordPolicyService {
         if (rawPassword == null || rawPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "密码长度不能少于8位");
         }
-        boolean hasUpper = rawPassword.chars().anyMatch(Character::isUpperCase);
-        boolean hasLower = rawPassword.chars().anyMatch(Character::isLowerCase);
-        boolean hasDigit = rawPassword.chars().anyMatch(Character::isDigit);
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        for (char c : rawPassword.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+            if (hasUpper && hasLower && hasDigit) break;
+        }
         if (!hasUpper || !hasLower || !hasDigit) {
             throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "密码必须包含大写字母、小写字母和数字");
         }

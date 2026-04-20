@@ -33,7 +33,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import { getCaptcha } from '@/api/auth'
+import { getCaptcha, type CaptchaResult } from '@/api/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -43,7 +43,7 @@ const captchaLoading = ref(false)
 const captchaImage = ref('')
 const captchaKey = ref('')
 
-const form = reactive({ username: '', password: '', captcha: '', captchaKey: '' })
+const form = reactive({ username: '', password: '', captcha: '' })
 const rules: FormRules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
@@ -53,10 +53,9 @@ const rules: FormRules = {
 async function loadCaptcha() {
   captchaLoading.value = true
   try {
-    const result = await getCaptcha() as unknown as { captchaKey: string; captchaImage: string }
+    const result = await getCaptcha() as unknown as CaptchaResult
     captchaKey.value = result.captchaKey
     captchaImage.value = result.captchaImage
-    form.captchaKey = result.captchaKey
   } finally {
     captchaLoading.value = false
   }

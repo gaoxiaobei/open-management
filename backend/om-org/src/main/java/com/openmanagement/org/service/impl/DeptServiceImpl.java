@@ -60,19 +60,17 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, SysDept> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateDept(Long id, SysDept dept) {
-        if (getById(id) == null) {
+        dept.setId(id);
+        if (!updateById(dept)) {
             throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
         }
-        dept.setId(id);
-        updateById(dept);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteDept(Long id) {
-        if (getById(id) == null) {
+        if (!removeById(id)) {
             throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
         }
-        removeById(id);
     }
 }
