@@ -3,8 +3,10 @@ package com.openmanagement.system.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.openmanagement.common.annotation.DataPermission;
 import com.openmanagement.common.base.PageQuery;
 import com.openmanagement.common.constant.CommonConstants;
+import com.openmanagement.common.context.DataPermissionContext;
 import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.result.PageResult;
@@ -32,6 +34,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
+    @DataPermission
     public PageResult<UserVO> pageUsers(PageQuery pageQuery, String username, String realName, Long deptId, String status) {
         Page<SysUser> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<SysUser>()
@@ -40,6 +43,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 .eq(deptId != null, SysUser::getDeptId, deptId)
                 .eq(StringUtils.hasText(status), SysUser::getStatus, status)
                 .orderByDesc(SysUser::getCreatedAt);
+
+        DataPermissionContext.DataScope dataScope = DataPermissionContext.get();
+        if (dataScope != null && !dataScope.isAllData()) {
+            wrapper.and(w -> {
+                boolean hasCondition = false;
+                if (!dataScope.safeDeptIds().isEmpty()) {
+                    w.in(SysUser::getDeptId, dataScope.safeDeptIds());
+                    hasCondition = true;
+                }
+                if (dataScope.getUserId() != null) {
+                    if (hasCondition) {
+                        w.or();
+                    }
+                    w.eq(SysUser::getId, dataScope.getUserId());
+                    hasCondition = true;
+                }
+                if (!hasCondition) {
+                    w.eq(SysUser::getId, -1L);
+                }
+            });
+        }
         Page<SysUser> result = page(page, wrapper);
         List<UserVO> voList = result.getRecords().stream()
                 .map(this::toVO)
