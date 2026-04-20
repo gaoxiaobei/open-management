@@ -1,5 +1,6 @@
 package com.openmanagement.org.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.openmanagement.org.domain.entity.SysPosition;
 import com.openmanagement.org.mapper.PositionMapper;
@@ -7,7 +8,6 @@ import com.openmanagement.org.service.PositionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -16,7 +16,8 @@ public class PositionServiceImpl extends ServiceImpl<PositionMapper, SysPosition
 
     @Override
     public List<SysPosition> listByDeptId(Long deptId) {
-        // TODO: query positions filtered by deptId
-        return Collections.emptyList();
+        return list(new LambdaQueryWrapper<SysPosition>()
+                .eq(SysPosition::getDeptId, deptId)
+                .orderByAsc(SysPosition::getId));
     }
 }
