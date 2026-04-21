@@ -1,6 +1,6 @@
 package com.openmanagement.message.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.message.constant.MessageTypeConstants;
 import com.openmanagement.message.domain.entity.SysMessage;
@@ -49,14 +49,14 @@ public class TodoGenerateServiceImpl implements TodoGenerateService {
     public int completeTodo(Long receiverId, String bizType, Long bizId) {
         validateReceiver(receiverId);
         validateBizLink(bizType, bizId);
-        return messageMapper.update(null, new LambdaUpdateWrapper<SysMessage>()
-                .eq(SysMessage::getReceiverId, receiverId)
-                .eq(SysMessage::getMsgType, MessageTypeConstants.TODO)
-                .eq(SysMessage::getBizType, bizType)
-                .eq(SysMessage::getBizId, bizId)
-                .eq(SysMessage::getIsRead, 0)
-                .set(SysMessage::getIsRead, 1)
-                .set(SysMessage::getReadTime, LocalDateTime.now()));
+        return messageMapper.update(null, new UpdateWrapper<SysMessage>()
+                .eq("receiver_id", receiverId)
+                .eq("msg_type", MessageTypeConstants.TODO)
+                .eq("biz_type", bizType)
+                .eq("biz_id", bizId)
+                .eq("is_read", 0)
+                .set("is_read", 1)
+                .set("read_time", LocalDateTime.now()));
     }
 
     @Override
@@ -67,14 +67,14 @@ public class TodoGenerateServiceImpl implements TodoGenerateService {
         }
         validateBizLink(bizType, bizId);
         Set<Long> normalizedReceiverIds = normalizeReceiverIds(receiverIds);
-        return messageMapper.update(null, new LambdaUpdateWrapper<SysMessage>()
-                .in(SysMessage::getReceiverId, normalizedReceiverIds)
-                .eq(SysMessage::getMsgType, MessageTypeConstants.TODO)
-                .eq(SysMessage::getBizType, bizType)
-                .eq(SysMessage::getBizId, bizId)
-                .eq(SysMessage::getIsRead, 0)
-                .set(SysMessage::getIsRead, 1)
-                .set(SysMessage::getReadTime, LocalDateTime.now()));
+        return messageMapper.update(null, new UpdateWrapper<SysMessage>()
+                .in("receiver_id", normalizedReceiverIds)
+                .eq("msg_type", MessageTypeConstants.TODO)
+                .eq("biz_type", bizType)
+                .eq("biz_id", bizId)
+                .eq("is_read", 0)
+                .set("is_read", 1)
+                .set("read_time", LocalDateTime.now()));
     }
 
     private void validateReceiver(Long receiverId) {

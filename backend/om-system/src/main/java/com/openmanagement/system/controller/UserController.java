@@ -2,6 +2,7 @@ package com.openmanagement.system.controller;
 
 import com.openmanagement.common.base.PageQuery;
 import com.openmanagement.common.annotation.OperateLog;
+import com.openmanagement.common.annotation.RequirePermission;
 import com.openmanagement.common.result.PageResult;
 import com.openmanagement.common.result.R;
 import com.openmanagement.system.dto.UserCreateRequest;
@@ -19,6 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
+    @RequirePermission("system:user:query")
     public R<PageResult<UserVO>> pageUsers(PageQuery pageQuery,
                                            @RequestParam(required = false) String username,
                                            @RequestParam(required = false) String realName,
@@ -29,6 +31,7 @@ public class UserController {
 
     @PostMapping
     @OperateLog(module = "系统管理-用户", name = "创建用户")
+    @RequirePermission("system:user:create")
     public R<Void> createUser(@Valid @RequestBody UserCreateRequest request) {
         userService.createUser(request);
         return R.ok();
@@ -36,6 +39,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @OperateLog(module = "系统管理-用户", name = "更新用户")
+    @RequirePermission("system:user:update")
     public R<Void> updateUser(@PathVariable Long id, @Valid @RequestBody UserCreateRequest request) {
         userService.updateUser(id, request);
         return R.ok();
@@ -43,18 +47,21 @@ public class UserController {
 
     @PostMapping("/{id}/reset-password")
     @OperateLog(module = "系统管理-用户", name = "重置密码")
+    @RequirePermission("system:user:reset-password")
     public R<Void> resetPassword(@PathVariable Long id) {
         userService.resetPassword(id);
         return R.ok();
     }
 
     @GetMapping("/{id}")
+    @RequirePermission("system:user:query")
     public R<UserVO> getUserById(@PathVariable Long id) {
         return R.ok(userService.getUserById(id));
     }
 
     @PutMapping("/{id}/status")
     @OperateLog(module = "系统管理-用户", name = "修改用户状态")
+    @RequirePermission("system:user:update")
     public R<Void> changeUserStatus(@PathVariable Long id, @RequestParam String status) {
         userService.changeUserStatus(id, status);
         return R.ok();
@@ -62,6 +69,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @OperateLog(module = "系统管理-用户", name = "删除用户")
+    @RequirePermission("system:user:delete")
     public R<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return R.ok();

@@ -2,6 +2,7 @@ package com.openmanagement.system.controller;
 
 import com.openmanagement.common.base.PageQuery;
 import com.openmanagement.common.annotation.OperateLog;
+import com.openmanagement.common.annotation.RequirePermission;
 import com.openmanagement.common.result.PageResult;
 import com.openmanagement.common.result.R;
 import com.openmanagement.system.domain.entity.SysRole;
@@ -19,6 +20,7 @@ public class RoleController {
     private final RoleService roleService;
 
     @GetMapping
+    @RequirePermission("system:role:query")
     public R<PageResult<SysRole>> pageRoles(PageQuery pageQuery,
                                             @RequestParam(required = false) String roleName,
                                             @RequestParam(required = false) String roleCode,
@@ -27,17 +29,20 @@ public class RoleController {
     }
 
     @GetMapping("/all")
+    @RequirePermission("system:role:query")
     public R<List<SysRole>> listAllEnabled() {
         return R.ok(roleService.listAllEnabled());
     }
 
     @GetMapping("/{id}")
+    @RequirePermission("system:role:query")
     public R<SysRole> getRoleById(@PathVariable Long id) {
         return R.ok(roleService.getRoleById(id));
     }
 
     @PostMapping
     @OperateLog(module = "系统管理-角色", name = "创建角色")
+    @RequirePermission("system:role:create")
     public R<Void> createRole(@RequestBody SysRole role) {
         roleService.createRole(role);
         return R.ok();
@@ -45,6 +50,7 @@ public class RoleController {
 
     @PutMapping("/{id}")
     @OperateLog(module = "系统管理-角色", name = "更新角色")
+    @RequirePermission("system:role:update")
     public R<Void> updateRole(@PathVariable Long id, @RequestBody SysRole role) {
         roleService.updateRole(id, role);
         return R.ok();
@@ -52,18 +58,21 @@ public class RoleController {
 
     @DeleteMapping("/{id}")
     @OperateLog(module = "系统管理-角色", name = "删除角色")
+    @RequirePermission("system:role:delete")
     public R<Void> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
         return R.ok();
     }
 
     @GetMapping("/{id}/menu-ids")
+    @RequirePermission("system:role:query")
     public R<List<Long>> getRoleMenuIds(@PathVariable Long id) {
         return R.ok(roleService.getRoleMenuIds(id));
     }
 
     @PostMapping("/{id}/menus")
     @OperateLog(module = "系统管理-角色", name = "分配角色菜单权限")
+    @RequirePermission("system:role:assign-menu")
     public R<Void> assignRoleMenus(@PathVariable Long id, @RequestBody List<Long> menuIds) {
         roleService.assignRoleMenus(id, menuIds);
         return R.ok();
