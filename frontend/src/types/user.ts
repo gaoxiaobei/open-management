@@ -2,7 +2,7 @@ export interface UserInfo {
   id: number
   username: string
   realName: string
-  deptId: number
+  deptId?: number
   deptName?: string
   positionId?: number
   positionName?: string

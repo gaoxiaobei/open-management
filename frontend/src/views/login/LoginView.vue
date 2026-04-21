@@ -33,7 +33,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import { getCaptcha, type CaptchaResult } from '@/api/auth'
+import { getCaptcha } from '@/api/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -53,7 +53,7 @@ const rules: FormRules = {
 async function loadCaptcha() {
   captchaLoading.value = true
   try {
-    const result = await getCaptcha() as unknown as CaptchaResult
+    const result = await getCaptcha()
     captchaKey.value = result.captchaKey
     captchaImage.value = result.captchaImage
   } catch {

@@ -1,13 +1,13 @@
-import axios from 'axios'
+import axios, { type AxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 import type { R } from '@/types/api'
 
-const request = axios.create({
+const instance = axios.create({
   baseURL: '/api',
   timeout: 30000,
 })
 
-request.interceptors.request.use(
+instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -18,11 +18,12 @@ request.interceptors.request.use(
   (error) => Promise.reject(error),
 )
 
-request.interceptors.response.use(
+instance.interceptors.response.use(
   (response) => {
     const res = response.data as R
     const { code, message, data } = res
     if (code === 200) {
+      // Return the unwrapped data; typed wrappers below give callers the correct T
       return data as never
     }
     if (code === 401) {
@@ -37,5 +38,22 @@ request.interceptors.response.use(
     return Promise.reject(error)
   },
 )
+
+// Typed wrapper helpers so callers write `request.get<MyType>(url)` and receive Promise<MyType>
+// without needing `as unknown as` casts at every call site.
+const request = {
+  get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return instance.get(url, config) as unknown as Promise<T>
+  },
+  post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+    return instance.post(url, data, config) as unknown as Promise<T>
+  },
+  put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+    return instance.put(url, data, config) as unknown as Promise<T>
+  },
+  delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return instance.delete(url, config) as unknown as Promise<T>
+  },
+}
 
 export default request
