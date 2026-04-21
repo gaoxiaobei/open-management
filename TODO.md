@@ -48,7 +48,7 @@
 | 后端 `om-auth` | `AuthController` — `/login`、`/logout`、`/captcha` | ✅ |
 | 后端 `om-system` | 菜单权限树查询（基于角色动态返回）—— 供登录响应组装 | ✅ |
 | 后端 `om-system` | 按钮权限标识（permission code 列表）—— 供登录响应组装 | ✅ |
-| 数据権限 | `@DataPermission` 注解定义（AOP 切面实现待 Sprint 3） | ✅（注解）/ ✅（切面） |
+| 数据权限 | `@DataPermission` 注解定义（AOP 切面实现待 Sprint 3） | ✅（注解）/ ✅（切面） |
 | 前端 | `/login` 页（账号、密码、验证码表单、校验）骨架 | ✅ |
 | 前端 | 登录后权限菜单动态加载（Pinia permission store）骨架 | ✅ |
 

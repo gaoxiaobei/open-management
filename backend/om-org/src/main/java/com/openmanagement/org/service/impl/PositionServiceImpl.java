@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.openmanagement.common.base.PageQuery;
+import com.openmanagement.common.enums.ErrorCode;
+import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.result.PageResult;
 import com.openmanagement.org.domain.entity.SysPosition;
 import com.openmanagement.org.mapper.PositionMapper;
@@ -47,12 +49,16 @@ public class PositionServiceImpl extends ServiceImpl<PositionMapper, SysPosition
     @Transactional(rollbackFor = Exception.class)
     public void updatePosition(Long id, SysPosition position) {
         position.setId(id);
-        updateById(position);
+        if (!updateById(position)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND.getCode(), "岗位不存在");
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deletePosition(Long id) {
-        removeById(id);
+        if (!removeById(id)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND.getCode(), "岗位不存在");
+        }
     }
 }

@@ -25,14 +25,17 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function doLogout() {
-    await logout()
-    token.value = ''
-    userInfo.value = null
-    localStorage.removeItem('token')
+    try {
+      await logout()
+    } finally {
+      token.value = ''
+      userInfo.value = null
+      localStorage.removeItem('token')
 
-    const permissionStore = usePermissionStore()
-    permissionStore.setMenus([])
-    permissionStore.setPermissions([])
+      const permissionStore = usePermissionStore()
+      permissionStore.setMenus([])
+      permissionStore.setPermissions([])
+    }
   }
 
   function isLoggedIn() {

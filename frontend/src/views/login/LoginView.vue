@@ -56,6 +56,9 @@ async function loadCaptcha() {
     const result = await getCaptcha() as unknown as CaptchaResult
     captchaKey.value = result.captchaKey
     captchaImage.value = result.captchaImage
+  } catch {
+    captchaImage.value = ''
+    captchaKey.value = ''
   } finally {
     captchaLoading.value = false
   }

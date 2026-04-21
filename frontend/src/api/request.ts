@@ -1,4 +1,4 @@
-import axios, { type AxiosResponse } from 'axios'
+import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import type { R } from '@/types/api'
 
@@ -19,10 +19,11 @@ request.interceptors.request.use(
 )
 
 request.interceptors.response.use(
-  (response: AxiosResponse<R>) => {
-    const { code, message, data } = response.data
+  (response) => {
+    const res = response.data as R
+    const { code, message, data } = res
     if (code === 200) {
-      return data as unknown as AxiosResponse
+      return data as never
     }
     if (code === 401) {
       localStorage.removeItem('token')
