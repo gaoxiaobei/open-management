@@ -109,7 +109,7 @@
 | 后端 `om-file` | `FileController` — `/api/files/upload`、`/api/files/{id}/url`、`DELETE /api/files/{id}` | ✅（Controller 骨架） |
 | 后端 `om-message` | 实体 `SysMessage`；`MessageMapper` | ✅ |
 | 后端 `om-message` | `MessageService/Impl` — 发送、已读/未读、分页查询 | ✅ |
-| 后端 `om-message` | `TodoGenerateService` — 待办生成 & 完成 | ⬜ |
+| 后端 `om-message` | `TodoGenerateService` — 待办生成 & 完成 | ✅ |
 | 后端 `om-message` | `MessageController` — 消息列表、标记已读、未读数量 | ✅ |
 | 前端 | 顶部消息中心入口、首页工作台统计图 | ⬜ |
 
@@ -189,12 +189,11 @@
 
 优先级按交付风险排序：
 
-1. **`om-message`** — 新建 `TodoGenerateService`（待办生成 & 完成）
-2. **`om-workflow`** — 完成 Flowable 配置，实现 `ProcessInstanceServiceImpl` 和 `TaskServiceImpl`
-3. **`om-hr` / `om-oa` / `om-asset`** — 补全各 ServiceImpl 的数据库操作
-4. **前端** — 补全菜单管理页、字典管理页、岗位管理页；完善消息中心、待办页；接入真实后端接口
-5. **测试完善** — 为已完成的组织架构与日志审计服务补充单元测试和联调用例
-6. **文件模块联调** — 增加上传/删除/预签名 URL 接口集成测试
+1. **`om-workflow`** — 完成 Flowable 配置，实现 `ProcessInstanceServiceImpl` 和 `TaskServiceImpl`
+2. **`om-hr` / `om-oa` / `om-asset`** — 补全各 ServiceImpl 的数据库操作
+3. **前端** — 补全菜单管理页、字典管理页、岗位管理页；完善消息中心、待办页；接入真实后端接口
+4. **测试完善** — 为已完成的组织架构与日志审计服务补充单元测试和联调用例
+5. **文件模块联调** — 增加上传/删除/预签名 URL 接口集成测试
 
 ---
 
