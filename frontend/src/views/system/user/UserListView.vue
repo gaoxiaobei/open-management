@@ -166,7 +166,6 @@ const dialogMode = ref<DialogMode>('create')
 const tableData = ref<UserVO[]>([])
 const total = ref(0)
 const roleOptions = ref<RoleVO[]>([])
-const deptTree = ref<DeptTreeNode[]>([])
 const deptOptions = ref<DeptOption[]>([])
 const formRef = ref<FormInstance>()
 const editingId = ref<number>()
@@ -255,7 +254,6 @@ function resolveDeptName(deptId?: number) {
 async function bootstrapOptions() {
   const [roles, depts] = await Promise.all([listAllRoles(), getDeptTree()])
   roleOptions.value = roles
-  deptTree.value = depts
   deptOptions.value = flattenDeptTree(depts)
 }
 

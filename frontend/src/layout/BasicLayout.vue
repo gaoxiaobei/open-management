@@ -72,7 +72,7 @@
       <el-header class="layout-header">
         <div class="header-left">{{ pageTitle }}</div>
         <div class="header-right">
-          <el-badge :value="unreadCount" :hidden="!unreadCount" class="message-badge">
+          <el-badge :value="messageStore.unreadCount" :hidden="!messageStore.unreadCount" class="message-badge">
             <el-button text @click="router.push('/messages')">
               <el-icon><Bell /></el-icon>
             </el-button>
@@ -98,34 +98,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getUnreadCount } from '@/api/message'
+import { useMessageStore } from '@/stores/message'
 import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
-const unreadCount = ref(0)
+const messageStore = useMessageStore()
 
 const pageTitle = computed(() => String(route.meta.title || 'Open Management'))
-
-async function loadUnreadCount() {
-  try {
-    unreadCount.value = await getUnreadCount()
-  } catch {
-    unreadCount.value = 0
-  }
-}
 
 async function handleCommand(command: string) {
   if (command === 'logout') {
     await userStore.doLogout()
+    messageStore.reset()
     router.push('/login')
   }
 }
 
-onMounted(loadUnreadCount)
+watch(() => route.fullPath, () => {
+  if (userStore.isLoggedIn()) {
+    messageStore.refreshUnreadCount()
+  }
+}, { immediate: false })
+
+onMounted(() => {
+  if (userStore.isLoggedIn()) {
+    messageStore.refreshUnreadCount()
+  }
+})
 </script>
 
 <style scoped>

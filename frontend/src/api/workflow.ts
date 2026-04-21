@@ -26,13 +26,24 @@ export interface ProcessInstanceVO {
   flowableInstanceId?: string
 }
 
+export interface ProcessProgressTaskItem {
+  id: number
+  taskName: string
+  assigneeId?: number
+  status: string
+  action?: string
+  comment?: string
+  claimTime?: string
+  completeTime?: string
+}
+
 export interface ProcessProgressVO {
   processKey: string
   businessKey: string
   status: string
   startTime?: string
   endTime?: string
-  taskList: Array<Record<string, unknown>>
+  taskList: ProcessProgressTaskItem[]
 }
 
 export interface ProcessDefinitionVO {

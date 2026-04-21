@@ -63,8 +63,8 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useMessageStore } from '@/stores/message'
 import {
-  getUnreadCount,
   markMessageRead,
   pageMyMessages,
   type MessageVO,
@@ -73,23 +73,24 @@ import {
 const loading = ref(false)
 const tableData = ref<MessageVO[]>([])
 const total = ref(0)
-const unreadCount = ref(0)
+const messageStore = useMessageStore()
 
 const query = reactive({
   pageNum: 1,
   pageSize: 20,
 })
 
+const unreadCount = computed(() => messageStore.unreadCount)
 const todoCount = computed(() => tableData.value.filter((item) => item.msgType === 'TODO').length)
 const noticeCount = computed(() => tableData.value.filter((item) => item.msgType === 'NOTICE').length)
 
 async function loadData() {
   loading.value = true
   try {
-    const [messages, unread] = await Promise.all([pageMyMessages(query), getUnreadCount()])
+    const messages = await pageMyMessages(query)
     tableData.value = messages.records
     total.value = messages.total
-    unreadCount.value = unread
+    await messageStore.refreshUnreadCount()
   } finally {
     loading.value = false
   }
@@ -97,6 +98,7 @@ async function loadData() {
 
 async function handleMarkRead(id: number) {
   await markMessageRead(id)
+  messageStore.decrementUnreadCount()
   ElMessage.success('消息已标记为已读')
   await loadData()
 }
