@@ -48,8 +48,11 @@ public class PositionServiceImpl extends ServiceImpl<PositionMapper, SysPosition
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updatePosition(Long id, SysPosition position) {
+        if (getById(id) == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND.getCode(), "岗位不存在");
+        }
         position.setId(id);
-        if (!updateById(position)) {
+        if (!updateById(position) && getById(id) == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND.getCode(), "岗位不存在");
         }
     }

@@ -60,8 +60,11 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, SysDept> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateDept(Long id, SysDept dept) {
+        if (getById(id) == null) {
+            throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
+        }
         dept.setId(id);
-        if (!updateById(dept)) {
+        if (!updateById(dept) && getById(id) == null) {
             throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
         }
     }
@@ -69,6 +72,14 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, SysDept> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteDept(Long id) {
+        if (getById(id) == null) {
+            throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
+        }
+        long childCount = count(new LambdaQueryWrapper<SysDept>()
+                .eq(SysDept::getParentId, id));
+        if (childCount > 0) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "该部门存在子部门，无法删除");
+        }
         if (!removeById(id)) {
             throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
         }

@@ -52,6 +52,7 @@ const rules: FormRules = {
 
 async function loadCaptcha() {
   captchaLoading.value = true
+  form.captcha = ''
   try {
     const result = await getCaptcha()
     captchaKey.value = result.captchaKey
