@@ -6,12 +6,10 @@ import com.openmanagement.asset.service.AssetReceiveService;
 import com.openmanagement.common.constant.CommonConstants;
 import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.exception.BusinessException;
+import com.openmanagement.common.util.ApplicationNoGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -30,16 +28,12 @@ public class AssetReceiveServiceImpl implements AssetReceiveService {
         }
 
         AssetReceiveApply apply = new AssetReceiveApply();
-        apply.setApplyNo(generateApplyNo("AR"));
+        apply.setApplyNo(ApplicationNoGenerator.next("AR"));
         apply.setAssetId(assetId);
         apply.setApplicantId(applicantId);
         apply.setReason(reason);
         apply.setProcessInstanceId(null);
         apply.setApplyStatus(CommonConstants.APPLY_STATUS_SUBMITTED);
         assetReceiveApplyMapper.insert(apply);
-    }
-
-    private String generateApplyNo(String prefix) {
-        return prefix + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
     }
 }

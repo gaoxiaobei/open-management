@@ -7,6 +7,7 @@ import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,8 @@ public class PermissionAspect {
 
     @Before("@within(requirePermission)")
     public void checkTypePermission(JoinPoint joinPoint, RequirePermission requirePermission) {
-        if (!joinPoint.getSignature().getName().equals("toString")) {
+        if (joinPoint.getSignature() instanceof MethodSignature methodSignature
+                && !Object.class.equals(methodSignature.getMethod().getDeclaringClass())) {
             verifyPermission(requirePermission.value());
         }
     }

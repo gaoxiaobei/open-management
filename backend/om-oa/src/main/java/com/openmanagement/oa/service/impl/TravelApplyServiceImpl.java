@@ -7,15 +7,13 @@ import com.openmanagement.common.constant.CommonConstants;
 import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.result.PageResult;
+import com.openmanagement.common.util.ApplicationNoGenerator;
 import com.openmanagement.oa.domain.entity.OaTravelApply;
 import com.openmanagement.oa.mapper.TravelApplyMapper;
 import com.openmanagement.oa.service.TravelApplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +26,7 @@ public class TravelApplyServiceImpl implements TravelApplyService {
     public void submitTravelApply(OaTravelApply apply) {
         validateApply(apply);
         apply.setId(null);
-        apply.setApplyNo(generateApplyNo("TR"));
+        apply.setApplyNo(ApplicationNoGenerator.next("TR"));
         apply.setProcessInstanceId(null);
         apply.setApplyStatus(CommonConstants.APPLY_STATUS_SUBMITTED);
         travelApplyMapper.insert(apply);
@@ -61,7 +59,4 @@ public class TravelApplyServiceImpl implements TravelApplyService {
         }
     }
 
-    private String generateApplyNo(String prefix) {
-        return prefix + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-    }
 }

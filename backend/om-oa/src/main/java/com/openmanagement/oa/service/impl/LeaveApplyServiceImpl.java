@@ -7,15 +7,13 @@ import com.openmanagement.common.constant.CommonConstants;
 import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.result.PageResult;
+import com.openmanagement.common.util.ApplicationNoGenerator;
 import com.openmanagement.oa.domain.entity.OaLeaveApply;
 import com.openmanagement.oa.mapper.LeaveApplyMapper;
 import com.openmanagement.oa.service.LeaveApplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +26,7 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
     public void submitLeaveApply(OaLeaveApply apply) {
         validateApply(apply);
         apply.setId(null);
-        apply.setApplyNo(generateApplyNo("LV"));
+        apply.setApplyNo(ApplicationNoGenerator.next("LV"));
         apply.setProcessInstanceId(null);
         apply.setApplyStatus(CommonConstants.APPLY_STATUS_SUBMITTED);
         leaveApplyMapper.insert(apply);
@@ -61,7 +59,4 @@ public class LeaveApplyServiceImpl implements LeaveApplyService {
         }
     }
 
-    private String generateApplyNo(String prefix) {
-        return prefix + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-    }
 }

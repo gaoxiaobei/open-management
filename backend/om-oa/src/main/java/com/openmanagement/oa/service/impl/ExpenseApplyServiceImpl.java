@@ -7,15 +7,13 @@ import com.openmanagement.common.constant.CommonConstants;
 import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.result.PageResult;
+import com.openmanagement.common.util.ApplicationNoGenerator;
 import com.openmanagement.oa.domain.entity.OaExpenseApply;
 import com.openmanagement.oa.mapper.ExpenseApplyMapper;
 import com.openmanagement.oa.service.ExpenseApplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +26,7 @@ public class ExpenseApplyServiceImpl implements ExpenseApplyService {
     public void submitExpenseApply(OaExpenseApply apply) {
         validateApply(apply);
         apply.setId(null);
-        apply.setApplyNo(generateApplyNo("EX"));
+        apply.setApplyNo(ApplicationNoGenerator.next("EX"));
         apply.setProcessInstanceId(null);
         apply.setApplyStatus(CommonConstants.APPLY_STATUS_SUBMITTED);
         expenseApplyMapper.insert(apply);
@@ -55,7 +53,4 @@ public class ExpenseApplyServiceImpl implements ExpenseApplyService {
         }
     }
 
-    private String generateApplyNo(String prefix) {
-        return prefix + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-    }
 }
