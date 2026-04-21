@@ -7,14 +7,25 @@ export interface LoginParams {
   captchaKey?: string
 }
 
+export interface CaptchaResult {
+  captchaKey: string
+  captchaImage: string
+}
+
+/** Mirrors backend {@code LoginResponse.UserInfo} */
+export interface LoginUserInfo {
+  userId: number
+  username: string
+  realName: string
+  avatar?: string
+  roles?: string[]
+  permissions?: string[]
+}
+
+/** Mirrors backend {@code LoginResponse} */
 export interface LoginResult {
   token: string
-  userInfo: {
-    id: number
-    username: string
-    realName: string
-    deptId: number
-  }
+  userInfo: LoginUserInfo
   menus: unknown[]
 }
 
@@ -23,5 +34,9 @@ export function login(params: LoginParams) {
 }
 
 export function logout() {
-  return request.post('/auth/logout')
+  return request.post<void>('/auth/logout')
+}
+
+export function getCaptcha() {
+  return request.get<CaptchaResult>('/auth/captcha')
 }

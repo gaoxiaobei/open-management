@@ -3,11 +3,14 @@ package com.openmanagement.org.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.openmanagement.common.constant.CommonConstants;
+import com.openmanagement.common.enums.ErrorCode;
+import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.org.domain.entity.SysDept;
 import com.openmanagement.org.mapper.DeptMapper;
 import com.openmanagement.org.service.DeptService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,5 +49,39 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, SysDept> implements
             parent.getChildren().add(dept);
         }
         return roots;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void createDept(SysDept dept) {
+        save(dept);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateDept(Long id, SysDept dept) {
+        if (getById(id) == null) {
+            throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
+        }
+        dept.setId(id);
+        if (!updateById(dept) && getById(id) == null) {
+            throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteDept(Long id) {
+        if (getById(id) == null) {
+            throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
+        }
+        long childCount = count(new LambdaQueryWrapper<SysDept>()
+                .eq(SysDept::getParentId, id));
+        if (childCount > 0) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "该部门存在子部门，无法删除");
+        }
+        if (!removeById(id)) {
+            throw new BusinessException(ErrorCode.DEPT_NOT_FOUND.getCode(), ErrorCode.DEPT_NOT_FOUND.getMessage());
+        }
     }
 }

@@ -51,4 +51,12 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, SysConfig> impl
     public SysConfig getConfigByKey(String configKey) {
         return getOne(new LambdaQueryWrapper<SysConfig>().eq(SysConfig::getConfigKey, configKey));
     }
+
+    @Override
+    public String getConfigValue(String configKey, String defaultValue) {
+        SysConfig config = getConfigByKey(configKey);
+        return (config != null && StringUtils.hasText(config.getConfigValue()))
+                ? config.getConfigValue()
+                : defaultValue;
+    }
 }

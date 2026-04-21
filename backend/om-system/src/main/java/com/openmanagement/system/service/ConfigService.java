@@ -11,4 +11,5 @@ public interface ConfigService extends IService<SysConfig> {
     void updateConfig(Long id, SysConfig config);
     void deleteConfig(Long id);
     SysConfig getConfigByKey(String configKey);
+    String getConfigValue(String configKey, String defaultValue);
 }

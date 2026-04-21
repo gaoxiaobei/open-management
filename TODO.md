@@ -45,10 +45,10 @@
 | 后端 `om-auth` | `CaptchaService` — AWT 数学验证码生成，答案存 Redis（TTL 5 分钟） | ✅ |
 | 后端 `om-auth` | `PasswordPolicyService` — BCrypt 编码/校验、密码强度检查 | ✅ |
 | 后端 `om-auth` | `LoginServiceImpl` — 验证码校验 → 失败计数锁定（5 次/30 分钟）→ 用户查询 → 密码校验 → Sa-Token 登录 → 返回 Token + UserInfo + 菜单树 | ✅ |
-| 后端 `om-auth` | `AuthController` — `/login`、`/logout`、`/captcha`、`/refresh-token` | ✅ |
+| 后端 `om-auth` | `AuthController` — `/login`、`/logout`、`/captcha` | ✅ |
 | 后端 `om-system` | 菜单权限树查询（基于角色动态返回）—— 供登录响应组装 | ✅ |
 | 后端 `om-system` | 按钮权限标识（permission code 列表）—— 供登录响应组装 | ✅ |
-| 数据权限 | `@DataPermission` 注解定义（AOP 切面实现待 Sprint 3） | ✅（注解）/ ⬜（切面） |
+| 数据权限 | `@DataPermission` 注解定义（AOP 切面实现待 Sprint 3） | ✅（注解）/ ✅（切面） |
 | 前端 | `/login` 页（账号、密码、验证码表单、校验）骨架 | ✅ |
 | 前端 | 登录后权限菜单动态加载（Pinia permission store）骨架 | ✅ |
 
@@ -78,8 +78,8 @@
 | 后端 `om-org` | 实体 `SysDept`、`SysPosition`；Mapper `DeptMapper`、`PositionMapper` | ✅ |
 | 后端 `om-org` | `DeptService/Impl` — 部门树查询、CRUD | ✅ |
 | 后端 `om-org` | `PositionService/Impl` — 岗位分页查询、CRUD | ✅ |
-| 后端 `om-org` | `DeptController` — `/api/org/depts/tree` 等接口 | ✅（Controller 骨架） |
-| 后端 `om-org` | `PositionController` — `/api/org/positions` 等接口 | ✅（Controller 骨架） |
+| 后端 `om-org` | `DeptController` — `/api/org/depts/tree`、POST、PUT `/{id}`、DELETE `/{id}` | ✅ |
+| 后端 `om-org` | `PositionController` — `/api/org/positions`（list/page/CRUD）| ✅ |
 | 前端 | 部门树管理页骨架 | ✅ |
 | 前端 | 岗位管理页 | ⬜ |
 
@@ -189,13 +189,12 @@
 
 优先级按交付风险排序：
 
-1. **数据权限** — 实现 `@DataPermission` AOP 切面（SELF / DEPT / DEPT_AND_CHILD / ALL 四种策略）
-2. **`om-message`** — 实现 `MessageServiceImpl` 全部方法，新建 `TodoGenerateService`
-3. **`om-workflow`** — 完成 Flowable 配置，实现 `ProcessInstanceServiceImpl` 和 `TaskServiceImpl`
-4. **`om-hr` / `om-oa` / `om-asset`** — 补全各 ServiceImpl 的数据库操作
-5. **前端** — 补全菜单管理页、字典管理页、岗位管理页；完善消息中心、待办页；接入真实后端接口
-6. **测试完善** — 为已完成的组织架构与日志审计服务补充单元测试和联调用例
-7. **文件模块联调** — 增加上传/删除/预签名 URL 接口集成测试
+1. **`om-message`** — 新建 `TodoGenerateService`（待办生成 & 完成）
+2. **`om-workflow`** — 完成 Flowable 配置，实现 `ProcessInstanceServiceImpl` 和 `TaskServiceImpl`
+3. **`om-hr` / `om-oa` / `om-asset`** — 补全各 ServiceImpl 的数据库操作
+4. **前端** — 补全菜单管理页、字典管理页、岗位管理页；完善消息中心、待办页；接入真实后端接口
+5. **测试完善** — 为已完成的组织架构与日志审计服务补充单元测试和联调用例
+6. **文件模块联调** — 增加上传/删除/预签名 URL 接口集成测试
 
 ---
 
@@ -204,10 +203,10 @@
 | 模块 | 状态 | 完成度 |
 |------|------|--------|
 | om-common | ✅ 已完成 | 100% |
-| om-app | ✅ 已完成 | 100% |
-| om-auth | ✅ 已完成 | 100% |
-| om-system | ✅ 已完成 | 100% |
-| om-org | ✅ 服务实现完成，前端岗位页待补全 | 70% |
+| om-app | ✅ 已完成（含 DataPermissionAspect） | 100% |
+| om-auth | ✅ 已完成（含 /captcha 端点、密码强度检查） | 100% |
+| om-system | ✅ 已完成（含 getConfigValue） | 100% |
+| om-org | ✅ 后端 CRUD 完成，前端岗位页待补全 | 75% |
 | om-audit | ✅ 服务与 AOP 实现完成，前端页面待补全 | 70% |
 | om-file | ✅ MinIO 集成与文件服务实现完成 | 70% |
 | om-message | 🔨 `TodoGenerateService` 待实现 | 60% |
@@ -215,6 +214,6 @@
 | om-hr | 🔨 骨架完成，Service 待实现 | 30% |
 | om-oa | 🔨 骨架完成，Service 待实现 | 25% |
 | om-asset | 🔨 骨架完成，Service 待实现 | 25% |
-| 前端 | 🔨 骨架完成，部分页面待补全 | 40% |
+| 前端 | 🔨 骨架完成，部分页面待补全 | 45% |
 | 桌面端 | 🔨 骨架完成，打包配置待完善 | 20% |
 | 数据库 DDL | ✅ 全部脚本已就位 | 100% |
