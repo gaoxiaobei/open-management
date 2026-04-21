@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.openmanagement.common.base.PageQuery;
+import com.openmanagement.common.enums.ErrorCode;
+import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.result.PageResult;
 import com.openmanagement.system.domain.entity.SysConfig;
 import com.openmanagement.system.mapper.ConfigMapper;
@@ -37,8 +39,15 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, SysConfig> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateConfig(Long id, SysConfig config) {
-        config.setId(id);
-        updateById(config);
+        SysConfig existing = getById(id);
+        if (existing == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND.getCode(), "参数配置不存在");
+        }
+        if (config.getConfigKey() != null) existing.setConfigKey(config.getConfigKey());
+        if (config.getConfigValue() != null) existing.setConfigValue(config.getConfigValue());
+        if (config.getConfigName() != null) existing.setConfigName(config.getConfigName());
+        if (config.getRemark() != null) existing.setRemark(config.getRemark());
+        updateById(existing);
     }
 
     @Override

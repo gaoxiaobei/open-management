@@ -5,6 +5,7 @@ import com.openmanagement.audit.domain.entity.SysOperateLog;
 import com.openmanagement.audit.service.LoginLogService;
 import com.openmanagement.audit.service.OperateLogService;
 import com.openmanagement.common.base.PageQuery;
+import com.openmanagement.common.annotation.RequirePermission;
 import com.openmanagement.common.result.PageResult;
 import com.openmanagement.common.result.R;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,14 @@ public class AuditQueryController {
     private final OperateLogService operateLogService;
 
     @GetMapping("/login-logs")
+    @RequirePermission("audit:login-log:query")
     public R<PageResult<SysLoginLog>> loginLogs(PageQuery pageQuery,
                                                 @RequestParam(required = false) Long userId) {
         return R.ok(loginLogService.pageLoginLogs(pageQuery, userId));
     }
 
     @GetMapping("/operate-logs")
+    @RequirePermission("audit:operate-log:query")
     public R<PageResult<SysOperateLog>> operateLogs(PageQuery pageQuery,
                                                     @RequestParam(required = false) Long userId) {
         return R.ok(operateLogService.pageOperateLogs(pageQuery, userId));

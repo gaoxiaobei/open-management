@@ -65,8 +65,16 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, SysMenu> implements
         if (existing == null) {
             throw new BusinessException(ErrorCode.MENU_NOT_FOUND.getCode(), ErrorCode.MENU_NOT_FOUND.getMessage());
         }
-        menu.setId(id);
-        updateById(menu);
+        if (menu.getParentId() != null) existing.setParentId(menu.getParentId());
+        if (StringUtils.hasText(menu.getMenuName())) existing.setMenuName(menu.getMenuName());
+        if (StringUtils.hasText(menu.getMenuType())) existing.setMenuType(menu.getMenuType());
+        if (menu.getPath() != null) existing.setPath(menu.getPath());
+        if (menu.getComponent() != null) existing.setComponent(menu.getComponent());
+        if (menu.getIcon() != null) existing.setIcon(menu.getIcon());
+        if (menu.getPermissionCode() != null) existing.setPermissionCode(menu.getPermissionCode());
+        if (menu.getSortOrder() != null) existing.setSortOrder(menu.getSortOrder());
+        if (StringUtils.hasText(menu.getStatus())) existing.setStatus(menu.getStatus());
+        updateById(existing);
     }
 
     @Override

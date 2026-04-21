@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.openmanagement.common.base.PageQuery;
 import com.openmanagement.common.constant.CommonConstants;
+import com.openmanagement.common.enums.ErrorCode;
+import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.result.PageResult;
 import com.openmanagement.system.domain.entity.SysDictItem;
 import com.openmanagement.system.domain.entity.SysDictType;
@@ -47,8 +49,15 @@ public class DictServiceImpl implements DictService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateDictType(Long id, SysDictType dictType) {
-        dictType.setId(id);
-        dictTypeMapper.updateById(dictType);
+        SysDictType existing = dictTypeMapper.selectById(id);
+        if (existing == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND.getCode(), "字典类型不存在");
+        }
+        if (dictType.getDictType() != null) existing.setDictType(dictType.getDictType());
+        if (dictType.getDictName() != null) existing.setDictName(dictType.getDictName());
+        if (dictType.getStatus() != null) existing.setStatus(dictType.getStatus());
+        if (dictType.getRemark() != null) existing.setRemark(dictType.getRemark());
+        dictTypeMapper.updateById(existing);
     }
 
     @Override
@@ -78,8 +87,16 @@ public class DictServiceImpl implements DictService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateDictItem(Long id, SysDictItem item) {
-        item.setId(id);
-        dictItemMapper.updateById(item);
+        SysDictItem existing = dictItemMapper.selectById(id);
+        if (existing == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND.getCode(), "字典项不存在");
+        }
+        if (item.getDictType() != null) existing.setDictType(item.getDictType());
+        if (item.getItemLabel() != null) existing.setItemLabel(item.getItemLabel());
+        if (item.getItemValue() != null) existing.setItemValue(item.getItemValue());
+        if (item.getSortOrder() != null) existing.setSortOrder(item.getSortOrder());
+        if (item.getStatus() != null) existing.setStatus(item.getStatus());
+        dictItemMapper.updateById(existing);
     }
 
     @Override

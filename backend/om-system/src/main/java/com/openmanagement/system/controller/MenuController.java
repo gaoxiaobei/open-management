@@ -2,6 +2,7 @@ package com.openmanagement.system.controller;
 
 import com.openmanagement.common.result.R;
 import com.openmanagement.common.annotation.OperateLog;
+import com.openmanagement.common.annotation.RequirePermission;
 import com.openmanagement.system.domain.entity.SysMenu;
 import com.openmanagement.system.service.MenuService;
 import lombok.RequiredArgsConstructor;
@@ -17,17 +18,20 @@ public class MenuController {
     private final MenuService menuService;
 
     @GetMapping
+    @RequirePermission("system:menu:query")
     public R<List<SysMenu>> listMenuTree() {
         return R.ok(menuService.listMenuTree());
     }
 
     @GetMapping("/{id}")
+    @RequirePermission("system:menu:query")
     public R<SysMenu> getMenuById(@PathVariable Long id) {
         return R.ok(menuService.getMenuById(id));
     }
 
     @PostMapping
     @OperateLog(module = "系统管理-菜单", name = "创建菜单")
+    @RequirePermission("system:menu:create")
     public R<Void> createMenu(@RequestBody SysMenu menu) {
         menuService.createMenu(menu);
         return R.ok();
@@ -35,6 +39,7 @@ public class MenuController {
 
     @PutMapping("/{id}")
     @OperateLog(module = "系统管理-菜单", name = "更新菜单")
+    @RequirePermission("system:menu:update")
     public R<Void> updateMenu(@PathVariable Long id, @RequestBody SysMenu menu) {
         menuService.updateMenu(id, menu);
         return R.ok();
@@ -42,6 +47,7 @@ public class MenuController {
 
     @DeleteMapping("/{id}")
     @OperateLog(module = "系统管理-菜单", name = "删除菜单")
+    @RequirePermission("system:menu:delete")
     public R<Void> deleteMenu(@PathVariable Long id) {
         menuService.deleteMenu(id);
         return R.ok();

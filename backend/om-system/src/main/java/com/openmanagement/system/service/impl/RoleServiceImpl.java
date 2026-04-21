@@ -63,8 +63,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         if (existing == null) {
             throw new BusinessException(ErrorCode.ROLE_NOT_FOUND.getCode(), ErrorCode.ROLE_NOT_FOUND.getMessage());
         }
-        role.setId(id);
-        updateById(role);
+        if (StringUtils.hasText(role.getRoleCode())) existing.setRoleCode(role.getRoleCode());
+        if (StringUtils.hasText(role.getRoleName())) existing.setRoleName(role.getRoleName());
+        if (StringUtils.hasText(role.getDataScope())) existing.setDataScope(role.getDataScope());
+        if (StringUtils.hasText(role.getStatus())) existing.setStatus(role.getStatus());
+        if (role.getRemark() != null) existing.setRemark(role.getRemark());
+        updateById(existing);
     }
 
     @Override
@@ -94,6 +98,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assignRoleMenus(Long roleId, List<Long> menuIds) {
+        if (getById(roleId) == null) {
+            throw new BusinessException(ErrorCode.ROLE_NOT_FOUND.getCode(), ErrorCode.ROLE_NOT_FOUND.getMessage());
+        }
         roleMenuMapper.delete(new LambdaQueryWrapper<SysRoleMenu>().eq(SysRoleMenu::getRoleId, roleId));
         if (menuIds != null && !menuIds.isEmpty()) {
             menuIds.forEach(menuId -> {

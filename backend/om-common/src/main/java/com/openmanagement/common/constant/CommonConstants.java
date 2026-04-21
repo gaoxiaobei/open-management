@@ -4,8 +4,8 @@ public final class CommonConstants {
     private CommonConstants() {}
 
     // Status
-    public static final String STATUS_NORMAL = "1";
-    public static final String STATUS_DISABLED = "0";
+    public static final String STATUS_NORMAL = "ENABLED";
+    public static final String STATUS_DISABLED = "DISABLED";
 
     // Logic delete
     public static final Integer NOT_DELETED = 0;
@@ -37,4 +37,8 @@ public final class CommonConstants {
     public static final String DATA_SCOPE_SELF = "SELF";
     public static final String DATA_SCOPE_DEPT = "DEPT";
     public static final String DATA_SCOPE_DEPT_AND_CHILD = "DEPT_AND_CHILD";
+
+    // Apply status
+    public static final String APPLY_STATUS_DRAFT = "DRAFT";
+    public static final String APPLY_STATUS_SUBMITTED = "SUBMITTED";
 }
