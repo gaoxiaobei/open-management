@@ -64,6 +64,12 @@ sa-token:
   token-style: uuid
   is-log: false
 
+flowable:
+  database-schema-update: true
+  async-executor-activate: false
+  check-process-definitions: true
+  process-definition-location-prefix: classpath*:/processes/
+
 minio:
   endpoint: http://localhost:9000
   access-key: minioadmin

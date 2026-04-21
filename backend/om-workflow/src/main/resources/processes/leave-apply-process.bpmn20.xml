@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="http://openmanagement.com/workflow">
+    <process id="leave_apply_process" name="请假审批流程" isExecutable="true">
+        <startEvent id="startEvent" name="开始"/>
+        <sequenceFlow id="flow_start_to_approve" sourceRef="startEvent" targetRef="approveTask"/>
+
+        <userTask id="approveTask" name="审批处理" flowable:assignee="${assignee}"/>
+        <sequenceFlow id="flow_approve_to_gateway" sourceRef="approveTask" targetRef="approvalGateway"/>
+
+        <exclusiveGateway id="approvalGateway" name="审批结果"/>
+        <sequenceFlow id="flow_gateway_to_approved" sourceRef="approvalGateway" targetRef="approvedEnd">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == null || approved}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow_gateway_to_rejected" sourceRef="approvalGateway" targetRef="rejectedEnd">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved != null && !approved}]]></conditionExpression>
+        </sequenceFlow>
+
+        <endEvent id="approvedEnd" name="审批通过"/>
+        <endEvent id="rejectedEnd" name="审批驳回"/>
+    </process>
+</definitions>
