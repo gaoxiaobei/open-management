@@ -1,7 +1,8 @@
 package com.openmanagement.hr.controller;
 
-import com.openmanagement.common.base.PageQuery;
+import com.openmanagement.common.annotation.OperateLog;
 import com.openmanagement.common.annotation.RequirePermission;
+import com.openmanagement.common.base.PageQuery;
 import com.openmanagement.common.result.PageResult;
 import com.openmanagement.common.result.R;
 import com.openmanagement.hr.domain.entity.HrEmployee;
@@ -26,6 +27,7 @@ public class EmployeeController {
     }
 
     @PostMapping
+    @OperateLog(module = "人事管理", name = "新增员工")
     @RequirePermission("hr:employee:create")
     public R<Void> createEmployee(@RequestBody HrEmployee employee) {
         employeeService.createEmployee(employee);
@@ -36,5 +38,29 @@ public class EmployeeController {
     @RequirePermission("hr:employee:query")
     public R<HrEmployee> getEmployee(@PathVariable Long id) {
         return R.ok(employeeService.getById(id));
+    }
+
+    @PutMapping("/{id}")
+    @OperateLog(module = "人事管理", name = "更新员工")
+    @RequirePermission("hr:employee:update")
+    public R<Void> updateEmployee(@PathVariable Long id, @RequestBody HrEmployee employee) {
+        employeeService.updateEmployee(id, employee);
+        return R.ok();
+    }
+
+    @PutMapping("/{id}/status")
+    @OperateLog(module = "人事管理", name = "修改员工状态")
+    @RequirePermission("hr:employee:update")
+    public R<Void> changeEmpStatus(@PathVariable Long id, @RequestParam String empStatus) {
+        employeeService.changeEmpStatus(id, empStatus);
+        return R.ok();
+    }
+
+    @DeleteMapping("/{id}")
+    @OperateLog(module = "人事管理", name = "删除员工")
+    @RequirePermission("hr:employee:delete")
+    public R<Void> deleteEmployee(@PathVariable Long id) {
+        employeeService.deleteEmployee(id);
+        return R.ok();
     }
 }

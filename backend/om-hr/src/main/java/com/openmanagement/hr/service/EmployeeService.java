@@ -10,4 +10,10 @@ public interface EmployeeService extends IService<HrEmployee> {
     PageResult<HrEmployee> pageEmployees(PageQuery pageQuery, String empName, Long deptId, String empStatus);
 
     void createEmployee(HrEmployee employee);
+
+    void updateEmployee(Long id, HrEmployee employee);
+
+    void changeEmpStatus(Long id, String empStatus);
+
+    void deleteEmployee(Long id);
 }
