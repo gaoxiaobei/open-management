@@ -23,6 +23,12 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, SysMessage> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void send(Long receiverId, String title, String content, String msgType) {
+        send(receiverId, title, content, msgType, null, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void send(Long receiverId, String title, String content, String msgType, String bizType, Long bizId) {
         if (receiverId == null) {
             throw new BusinessException("receiverId must not be null");
         }
@@ -32,18 +38,26 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, SysMessage> i
         if (!StringUtils.hasText(msgType)) {
             throw new BusinessException("msgType must not be blank");
         }
+        validateBizLink(bizType, bizId);
         Long senderId = UserContext.getUserId();
-        if (senderId == null) {
-            throw new BusinessException("Current user context is required to send a message");
-        }
         SysMessage message = new SysMessage();
         message.setReceiverId(receiverId);
         message.setSenderId(senderId);
         message.setTitle(title);
         message.setContent(content);
         message.setMsgType(msgType);
+        message.setBizType(bizType);
+        message.setBizId(bizId);
         message.setIsRead(0);
         save(message);
+    }
+
+    private void validateBizLink(String bizType, Long bizId) {
+        boolean hasBizType = StringUtils.hasText(bizType);
+        boolean hasBizId = bizId != null;
+        if (hasBizType != hasBizId) {
+            throw new BusinessException("bizType and bizId must both be provided or both be null");
+        }
     }
 
     @Override

@@ -60,7 +60,7 @@
 | om-org（组织架构） | ✅ 后端 CRUD 完成，前端岗位页待补全 |
 | om-audit（日志审计） | ✅ 后端服务与 AOP 完成，前端页面待补全 |
 | om-file（文件中心） | ✅ MinIO 集成与文件服务完成，前端页面待补全 |
-| om-message（消息中心） | 🔨 MessageService 完成，TodoGenerateService 待实现 |
+| om-message（消息中心） | ✅ MessageService / TodoGenerateService 完成 |
 | om-workflow（工作流） | 🔨 骨架完成，Flowable 集成待实现 |
 | om-hr / om-oa / om-asset | 🔨 骨架完成，Service 待实现 |
 | 前端（Vue 3） | 🔨 骨架完成，部分页面待补全 |
