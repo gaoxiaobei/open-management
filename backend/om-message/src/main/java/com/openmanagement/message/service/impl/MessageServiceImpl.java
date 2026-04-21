@@ -38,6 +38,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, SysMessage> i
         if (!StringUtils.hasText(msgType)) {
             throw new BusinessException("msgType must not be blank");
         }
+        validateBizLink(bizType, bizId);
         Long senderId = UserContext.getUserId();
         SysMessage message = new SysMessage();
         message.setReceiverId(receiverId);
@@ -49,6 +50,14 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, SysMessage> i
         message.setBizId(bizId);
         message.setIsRead(0);
         save(message);
+    }
+
+    private void validateBizLink(String bizType, Long bizId) {
+        boolean hasBizType = StringUtils.hasText(bizType);
+        boolean hasBizId = bizId != null;
+        if (hasBizType != hasBizId) {
+            throw new BusinessException("bizType and bizId must both be provided or both be null");
+        }
     }
 
     @Override

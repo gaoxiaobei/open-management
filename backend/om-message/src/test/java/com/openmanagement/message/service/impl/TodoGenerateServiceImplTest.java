@@ -60,4 +60,15 @@ class TodoGenerateServiceImplTest {
         assertThrows(BusinessException.class, () -> service.generateTodo(3L, "待审批", "请处理申请单", "", 2002L));
         verifyNoInteractions(messageService, messageMapper);
     }
+
+    @Test
+    void generateTodoShouldRejectNullBusinessId() {
+        MessageService messageService = mock(MessageService.class);
+        MessageMapper messageMapper = mock(MessageMapper.class);
+        TodoGenerateServiceImpl service = new TodoGenerateServiceImpl(messageService, messageMapper);
+
+        assertThrows(BusinessException.class,
+                () -> service.generateTodo(3L, "待审批", "请处理申请单", "LEAVE_APPLY", null));
+        verifyNoInteractions(messageService, messageMapper);
+    }
 }

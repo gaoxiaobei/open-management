@@ -1,6 +1,7 @@
 package com.openmanagement.message.service.impl;
 
 import com.openmanagement.common.context.UserContext;
+import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.message.domain.entity.SysMessage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -8,8 +9,10 @@ import org.mockito.ArgumentCaptor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -51,5 +54,14 @@ class MessageServiceImplTest {
 
         verify(service).save(messageCaptor.capture());
         assertEquals(9L, messageCaptor.getValue().getSenderId());
+    }
+
+    @Test
+    void sendShouldRejectPartialBusinessLinkage() {
+        MessageServiceImpl service = spy(new MessageServiceImpl());
+
+        assertThrows(BusinessException.class,
+                () -> service.send(2L, "审批待办", "请处理请假申请", "TODO", "LEAVE_APPLY", null));
+        verify(service, never()).save(any(SysMessage.class));
     }
 }
