@@ -1,9 +1,9 @@
 package com.openmanagement.workflow.controller;
 
 import com.openmanagement.common.constant.CommonConstants;
-import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.context.UserContext;
+import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.result.R;
 import com.openmanagement.workflow.domain.entity.WfProcessInstance;
 import com.openmanagement.workflow.domain.entity.WfTask;
@@ -11,11 +11,21 @@ import com.openmanagement.workflow.service.ProcessInstanceService;
 import com.openmanagement.workflow.service.TaskService;
 import com.openmanagement.workflow.vo.ProcessProgressVO;
 import lombok.RequiredArgsConstructor;
+import org.flowable.engine.RepositoryService;
+import org.flowable.engine.repository.Deployment;
+import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/workflow")
@@ -24,6 +34,7 @@ public class WorkflowController {
 
     private final ProcessInstanceService processInstanceService;
     private final TaskService taskService;
+    private final RepositoryService repositoryService;
 
     @PostMapping("/process/start")
     public R<Void> startProcess(@RequestBody Map<String, Object> body) {
@@ -66,6 +77,33 @@ public class WorkflowController {
     @GetMapping("/process/progress")
     public R<ProcessProgressVO> processProgress(@RequestParam String businessKey) {
         return R.ok(processInstanceService.getProgress(businessKey));
+    }
+
+    @GetMapping("/process-definitions")
+    public R<List<Map<String, Object>>> processDefinitions() {
+        List<ProcessDefinition> processDefinitions = repositoryService.createProcessDefinitionQuery()
+                .latestVersion()
+                .orderByProcessDefinitionKey()
+                .asc()
+                .list();
+        Map<String, LocalDateTime> deploymentTimes = resolveDeploymentTimes(processDefinitions);
+        List<Map<String, Object>> definitions = new ArrayList<>();
+        processDefinitions.forEach(definition -> {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", definition.getId());
+            item.put("key", definition.getKey());
+            item.put("name", definition.getName());
+            item.put("version", definition.getVersion());
+            item.put("category", definition.getCategory());
+            item.put("deploymentId", definition.getDeploymentId());
+            item.put("resourceName", definition.getResourceName());
+            item.put("diagramResourceName", definition.getDiagramResourceName());
+            item.put("suspended", definition.isSuspended());
+            item.put("tenantId", definition.getTenantId());
+            item.put("deploymentTime", deploymentTimes.get(definition.getDeploymentId()));
+            definitions.add(item);
+        });
+        return R.ok(definitions);
     }
 
     private List<Long> toLongList(Object value) {
@@ -115,5 +153,28 @@ public class WorkflowController {
 
     private boolean isAdmin(Long userId) {
         return CommonConstants.ADMIN_USER_ID.equals(userId);
+    }
+
+    private Map<String, LocalDateTime> resolveDeploymentTimes(List<ProcessDefinition> processDefinitions) {
+        Set<String> deploymentIds = new HashSet<>();
+        processDefinitions.stream()
+                .map(ProcessDefinition::getDeploymentId)
+                .filter(id -> id != null && !id.isBlank())
+                .forEach(deploymentIds::add);
+        if (deploymentIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Deployment> deployments = repositoryService.createDeploymentQuery()
+                .deploymentIds(new ArrayList<>(deploymentIds))
+                .list();
+        Map<String, LocalDateTime> deploymentTimes = new HashMap<>(deployments.size());
+        deployments.forEach(deployment -> {
+            if (deployment.getDeploymentTime() != null) {
+                deploymentTimes.put(deployment.getId(),
+                        LocalDateTime.ofInstant(deployment.getDeploymentTime().toInstant(), ZoneId.systemDefault()));
+            }
+        });
+        return deploymentTimes;
     }
 }

@@ -67,11 +67,12 @@ public class DictServiceImpl implements DictService {
     }
 
     @Override
-    public List<SysDictItem> listDictItems(String dictType) {
+    public List<SysDictItem> listDictItems(String dictType, boolean includeDisabled) {
         return dictItemMapper.selectList(new LambdaQueryWrapper<SysDictItem>()
                 .eq(SysDictItem::getDictType, dictType)
-                .eq(SysDictItem::getStatus, CommonConstants.STATUS_NORMAL)
-                .orderByAsc(SysDictItem::getSortOrder));
+                .eq(!includeDisabled, SysDictItem::getStatus, CommonConstants.STATUS_NORMAL)
+                .orderByAsc(SysDictItem::getSortOrder)
+                .orderByAsc(SysDictItem::getId));
     }
 
     @Override

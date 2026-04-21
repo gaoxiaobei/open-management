@@ -50,8 +50,9 @@ public class DictController {
 
     @GetMapping("/items/{dictType}")
     @RequirePermission("system:dict:query")
-    public R<List<SysDictItem>> listDictItems(@PathVariable String dictType) {
-        return R.ok(dictService.listDictItems(dictType));
+    public R<List<SysDictItem>> listDictItems(@PathVariable String dictType,
+                                              @RequestParam(defaultValue = "false") boolean includeDisabled) {
+        return R.ok(dictService.listDictItems(dictType, includeDisabled));
     }
 
     @PostMapping("/items")
