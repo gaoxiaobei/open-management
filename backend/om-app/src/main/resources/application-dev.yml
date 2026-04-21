@@ -20,6 +20,9 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+flowable:
+  database-schema-update: true
+
 logging:
   level:
     com.openmanagement: debug

@@ -1,6 +1,10 @@
 package com.openmanagement.workflow.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.openmanagement.common.constant.CommonConstants;
+import com.openmanagement.common.context.UserContext;
+import com.openmanagement.common.enums.ErrorCode;
+import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.workflow.domain.entity.WfTask;
 import com.openmanagement.workflow.mapper.TaskMapper;
 import com.openmanagement.workflow.service.TaskService;
@@ -23,12 +27,16 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void completeTask(Long taskId, String action, String comment, List<Long> nextAssigneeIds) {
+        Long currentUserId = requireCurrentUserId();
         WfTask localTask = taskMapper.selectById(taskId);
         if (localTask == null) {
             throw workflowRuntimeSupport.taskCompleteException("任务不存在");
         }
         if (!WorkflowRuntimeSupport.TASK_STATUS_PENDING.equals(localTask.getStatus())) {
             throw workflowRuntimeSupport.taskCompleteException("任务已处理");
+        }
+        if (!canOperateTask(currentUserId, localTask)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN.getCode(), "无权限处理该任务");
         }
 
         org.flowable.task.api.Task flowableTask = flowableTaskService.createTaskQuery()
@@ -75,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
             taskMapper.updateById(localTask);
             workflowRuntimeSupport.refreshProcessStatus(localTask.getProcessInstanceId(), normalizedAction);
         } catch (Exception ex) {
-            throw workflowRuntimeSupport.taskCompleteException("任务处理失败: " + ex.getMessage(), ex);
+            throw workflowRuntimeSupport.taskCompleteException("任务处理失败", ex);
         }
     }
 
@@ -85,5 +93,18 @@ public class TaskServiceImpl implements TaskService {
                 .eq(WfTask::getAssigneeId, assigneeId)
                 .eq(WfTask::getStatus, WorkflowRuntimeSupport.TASK_STATUS_PENDING)
                 .orderByDesc(WfTask::getCreatedAt, WfTask::getId));
+    }
+
+    private Long requireCurrentUserId() {
+        Long currentUserId = UserContext.getUserId();
+        if (currentUserId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED.getCode(), ErrorCode.UNAUTHORIZED.getMessage());
+        }
+        return currentUserId;
+    }
+
+    private boolean canOperateTask(Long currentUserId, WfTask localTask) {
+        return CommonConstants.ADMIN_USER_ID.equals(currentUserId)
+                || currentUserId.equals(localTask.getAssigneeId());
     }
 }

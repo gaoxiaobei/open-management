@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -162,7 +163,7 @@ public class WorkflowRuntimeSupport {
         if (action == null || action.isBlank()) {
             return ACTION_APPROVE;
         }
-        String normalized = action.trim().toUpperCase();
+        String normalized = action.trim().toUpperCase(Locale.ROOT);
         if (!ACTION_APPROVE.equals(normalized) && !ACTION_REJECT.equals(normalized) && !ACTION_TRANSFER.equals(normalized)) {
             throw taskCompleteException("不支持的审批动作: " + action);
         }

@@ -27,6 +27,9 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
 
+flowable:
+  database-schema-update: false
+
 logging:
   level:
     com.openmanagement: info

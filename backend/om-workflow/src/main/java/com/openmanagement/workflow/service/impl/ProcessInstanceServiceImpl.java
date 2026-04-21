@@ -7,6 +7,7 @@ import com.openmanagement.workflow.service.ProcessInstanceService;
 import com.openmanagement.workflow.support.WorkflowRuntimeSupport;
 import com.openmanagement.workflow.vo.ProcessProgressVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -58,8 +59,10 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
             processInstance.setFlowableInstanceId(flowableInstance.getId());
             processInstanceMapper.insert(processInstance);
             workflowRuntimeSupport.syncActiveTasks(processInstance);
+        } catch (DuplicateKeyException ex) {
+            throw workflowRuntimeSupport.processStartException("业务单号已存在流程实例");
         } catch (Exception ex) {
-            throw workflowRuntimeSupport.processStartException("流程启动失败: " + ex.getMessage(), ex);
+            throw workflowRuntimeSupport.processStartException("流程启动失败", ex);
         }
     }
 
