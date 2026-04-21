@@ -22,11 +22,35 @@
           </template>
           <el-menu-item index="/system/users">用户管理</el-menu-item>
           <el-menu-item index="/system/roles">角色管理</el-menu-item>
+          <el-menu-item index="/system/menus">菜单管理</el-menu-item>
+          <el-menu-item index="/system/dicts">字典管理</el-menu-item>
+          <el-menu-item index="/system/configs">参数配置</el-menu-item>
         </el-sub-menu>
-        <el-menu-item index="/org/dept">
-          <el-icon><OfficeBuilding /></el-icon>
-          <span>组织架构</span>
-        </el-menu-item>
+        <el-sub-menu index="org">
+          <template #title>
+            <el-icon><OfficeBuilding /></el-icon>
+            <span>组织架构</span>
+          </template>
+          <el-menu-item index="/org/dept">部门管理</el-menu-item>
+          <el-menu-item index="/org/positions">岗位管理</el-menu-item>
+        </el-sub-menu>
+        <el-sub-menu index="audit">
+          <template #title>
+            <el-icon><DocumentChecked /></el-icon>
+            <span>日志审计</span>
+          </template>
+          <el-menu-item index="/audit/login-logs">登录日志</el-menu-item>
+          <el-menu-item index="/audit/operate-logs">操作日志</el-menu-item>
+        </el-sub-menu>
+        <el-sub-menu index="workflow">
+          <template #title>
+            <el-icon><Connection /></el-icon>
+            <span>工作流</span>
+          </template>
+          <el-menu-item index="/workflow/todo">我的待办</el-menu-item>
+          <el-menu-item index="/workflow/process">流程详情</el-menu-item>
+          <el-menu-item index="/workflow/manage">流程管理</el-menu-item>
+        </el-sub-menu>
         <el-menu-item index="/hr/employees">
           <el-icon><User /></el-icon>
           <span>员工档案</span>
@@ -46,7 +70,13 @@
     </el-aside>
     <el-container>
       <el-header class="layout-header">
+        <div class="header-left">{{ pageTitle }}</div>
         <div class="header-right">
+          <el-badge :value="unreadCount" :hidden="!unreadCount" class="message-badge">
+            <el-button text @click="router.push('/messages')">
+              <el-icon><Bell /></el-icon>
+            </el-button>
+          </el-badge>
           <el-dropdown @command="handleCommand">
             <span class="user-name">
               {{ userStore.userInfo?.realName || userStore.userInfo?.username }}
@@ -68,12 +98,25 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { getUnreadCount } from '@/api/message'
 import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const unreadCount = ref(0)
+
+const pageTitle = computed(() => String(route.meta.title || 'Open Management'))
+
+async function loadUnreadCount() {
+  try {
+    unreadCount.value = await getUnreadCount()
+  } catch {
+    unreadCount.value = 0
+  }
+}
 
 async function handleCommand(command: string) {
   if (command === 'logout') {
@@ -81,14 +124,18 @@ async function handleCommand(command: string) {
     router.push('/login')
   }
 }
+
+onMounted(loadUnreadCount)
 </script>
 
 <style scoped>
 .layout-container { height: 100vh; }
 .layout-aside { background-color: #001529; overflow-y: auto; }
 .logo { height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; font-weight: bold; border-bottom: 1px solid #002040; }
-.layout-header { background-color: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: flex-end; padding: 0 20px; }
-.header-right { display: flex; align-items: center; gap: 16px; }
+.layout-header { background-color: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+.header-left { font-size: 16px; font-weight: 600; color: #0f172a; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.message-badge :deep(.el-button) { font-size: 18px; }
 .user-name { cursor: pointer; display: flex; align-items: center; gap: 4px; }
 .layout-main { background-color: #f0f2f5; overflow-y: auto; }
 </style>
