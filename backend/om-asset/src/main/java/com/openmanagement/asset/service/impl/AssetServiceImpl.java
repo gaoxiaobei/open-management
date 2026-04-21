@@ -11,6 +11,7 @@ import com.openmanagement.common.enums.ErrorCode;
 import com.openmanagement.common.exception.BusinessException;
 import com.openmanagement.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -53,12 +54,19 @@ public class AssetServiceImpl extends ServiceImpl<AssetInfoMapper, AssetInfo> im
             throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "资产编号已存在");
         }
         asset.setId(null);
-        save(asset);
+        try {
+            save(asset);
+        } catch (DuplicateKeyException ex) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "资产编号已存在");
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateAsset(Long id, AssetInfo asset) {
+        if (asset == null) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "资产信息不能为空");
+        }
         AssetInfo existing = getById(id);
         if (existing == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND.getCode(), "资产不存在");
@@ -72,7 +80,11 @@ public class AssetServiceImpl extends ServiceImpl<AssetInfoMapper, AssetInfo> im
             }
         }
         asset.setId(id);
-        updateById(asset);
+        try {
+            updateById(asset);
+        } catch (DuplicateKeyException ex) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "资产编号已存在");
+        }
     }
 
     @Override

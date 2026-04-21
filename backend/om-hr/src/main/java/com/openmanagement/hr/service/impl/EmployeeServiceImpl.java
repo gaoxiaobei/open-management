@@ -11,6 +11,7 @@ import com.openmanagement.hr.domain.entity.HrEmployee;
 import com.openmanagement.hr.mapper.EmployeeMapper;
 import com.openmanagement.hr.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -54,12 +55,19 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, HrEmployee>
             throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "工号已存在");
         }
         employee.setId(null);
-        save(employee);
+        try {
+            save(employee);
+        } catch (DuplicateKeyException ex) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "工号已存在");
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateEmployee(Long id, HrEmployee employee) {
+        if (employee == null) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "员工信息不能为空");
+        }
         HrEmployee existing = getById(id);
         if (existing == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND.getCode(), "员工不存在");
@@ -73,7 +81,11 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, HrEmployee>
             }
         }
         employee.setId(id);
-        updateById(employee);
+        try {
+            updateById(employee);
+        } catch (DuplicateKeyException ex) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR.getCode(), "工号已存在");
+        }
     }
 
     @Override
