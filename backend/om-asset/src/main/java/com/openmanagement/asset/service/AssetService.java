@@ -9,4 +9,12 @@ public interface AssetService extends IService<AssetInfo> {
 
     PageResult<AssetInfo> pageAssets(PageQuery pageQuery, String assetCode, String assetName,
                                      String category, String assetStatus);
+
+    void createAsset(AssetInfo asset);
+
+    void updateAsset(Long id, AssetInfo asset);
+
+    void updateAssetStatus(Long id, String assetStatus);
+
+    void deleteAsset(Long id);
 }
