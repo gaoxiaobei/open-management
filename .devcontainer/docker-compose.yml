@@ -6,6 +6,8 @@ services:
     command: sleep infinity
     volumes:
       - ..:/workspaces/open-management:cached
+      - frontend-node-modules:/workspaces/open-management/frontend/node_modules
+      - desktop-node-modules:/workspaces/open-management/desktop/node_modules
       - maven-cache:/home/vscode/.m2
       - npm-cache:/home/vscode/.npm
     environment:
@@ -119,6 +121,8 @@ services:
         mc mb --ignore-existing local/open-management
 
 volumes:
+  frontend-node-modules:
+  desktop-node-modules:
   maven-cache:
   npm-cache:
   mysql-data:

@@ -142,7 +142,7 @@ npm install
 npm run dev
 ```
 
-默认访问：http://localhost:5173
+默认访问：http://localhost:3000
 
 ### Dev Container（VS Code / Dev Containers）
 
@@ -157,10 +157,20 @@ npm run dev
 - RabbitMQ 3（管理台端口 `15672`）
 - MinIO（API `9000`，控制台 `9001`，默认桶 `open-management`）
 
-容器创建完成后会自动安装 `frontend/` 与 `desktop/` 的 Node 依赖。常用启动命令：
+容器创建完成后会自动安装 `frontend/` 与 `desktop/` 的 Node 依赖。
+
+> ⚠ 若 Electron 下载超时，容器会跳过 desktop 安装（不影响 Web 端开发）。如需桌面端，可在容器内手动执行：
+> ```bash
+> ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ npm install --prefix desktop
+> ```
+
+启动命令：
 
 ```bash
-cd backend && mvn spring-boot:run -pl om-app -am
+# 后端（先编译再启动）
+cd backend && mvn clean package -DskipTests && java -jar om-app/target/om-app-1.0.0-SNAPSHOT.jar
+
+# 前端（另一个终端）
 cd frontend && npm run dev -- --host 0.0.0.0
 ```
 
