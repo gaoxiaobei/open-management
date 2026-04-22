@@ -1,7 +1,7 @@
 <template>
   <div class="shell">
     <transition name="fade">
-      <button v-if="mobileNavOpen" class="shell-backdrop" @click="mobileNavOpen = false" />
+      <button v-if="mobileNavOpen" type="button" aria-label="关闭导航" class="shell-backdrop" @click="mobileNavOpen = false" />
     </transition>
 
     <aside class="shell-sidebar" :class="{ 'is-open': mobileNavOpen }">
@@ -48,7 +48,7 @@
     <div class="shell-main">
       <header class="shell-header">
         <div class="header-leading">
-          <button class="nav-toggle" @click="mobileNavOpen = true">
+          <button type="button" aria-label="打开导航" class="nav-toggle" @click="mobileNavOpen = true">
             <el-icon><Menu /></el-icon>
           </button>
           <div>
@@ -65,7 +65,7 @@
           </div>
 
           <el-badge :value="messageStore.unreadCount" :hidden="!messageStore.unreadCount">
-            <button class="icon-button" @click="router.push('/messages')">
+            <button type="button" aria-label="消息中心" class="icon-button" @click="router.push('/messages')">
               <el-icon><Bell /></el-icon>
             </button>
           </el-badge>
@@ -190,8 +190,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  if (timer) {
+  if (timer !== undefined) {
     window.clearInterval(timer)
+    timer = undefined
   }
 })
 </script>

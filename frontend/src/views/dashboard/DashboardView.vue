@@ -144,6 +144,7 @@ const messageTypeMap: Record<string, string> = {
   TODO: '待办',
   NOTICE: '通知',
   RESULT: '结果',
+  ALERT: '告警',
 }
 
 async function loadDashboard() {
@@ -186,7 +187,7 @@ function renderChart() {
     return
   }
   chart ??= echarts.init(chartRef.value)
-  const source = ['TODO', 'NOTICE', 'RESULT'].map((type) => ({
+  const source = ['TODO', 'NOTICE', 'RESULT', 'ALERT'].map((type) => ({
     name: messageTypeMap[type] || type,
     value: recentMessages.value.filter((item) => item.msgType === type).length,
   }))
@@ -208,7 +209,7 @@ function renderChart() {
           borderColor: '#fffaf4',
           borderWidth: 4,
         },
-        color: ['#0f5b52', '#c96f3b', '#d9b898'],
+        color: ['#0f5b52', '#c96f3b', '#d9b898', '#8a9ba8'],
         data: source,
       },
     ],
