@@ -19,6 +19,12 @@ ensure_writable_dir /workspaces/open-management/desktop/node_modules
 ensure_writable_dir /home/vscode/.npm
 ensure_writable_dir /home/vscode/.m2
 
+for d in /workspaces/open-management/backend/*/target; do
+  if [ -d "$d" ]; then
+    ensure_writable_dir "$d"
+  fi
+done
+
 if [ -f frontend/package-lock.json ]; then
   npm ci --prefix frontend
 else
