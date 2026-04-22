@@ -34,7 +34,8 @@
     "MINIO_ENDPOINT": "http://minio:9000",
     "MINIO_ACCESS_KEY": "minioadmin",
     "MINIO_SECRET_KEY": "minioadmin",
-    "MINIO_BUCKET": "open-management"
+    "MINIO_BUCKET": "open-management",
+    "ELECTRON_MIRROR": "https://npmmirror.com/mirrors/electron/"
   },
   "forwardPorts": [
     3000,
