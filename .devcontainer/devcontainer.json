@@ -1,0 +1,96 @@
+{
+  "name": "open-management",
+  "dockerComposeFile": [
+    "docker-compose.yml"
+  ],
+  "service": "workspace",
+  "runServices": [
+    "mysql",
+    "redis",
+    "rabbitmq",
+    "minio",
+    "minio-init",
+    "workspace"
+  ],
+  "workspaceFolder": "/workspaces/open-management",
+  "shutdownAction": "stopCompose",
+  "remoteUser": "vscode",
+  "overrideCommand": false,
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "remoteEnv": {
+    "SPRING_PROFILES_ACTIVE": "dev",
+    "DB_HOST": "mysql",
+    "DB_PORT": "3306",
+    "DB_NAME": "open_management",
+    "DB_USERNAME": "root",
+    "DB_PASSWORD": "root",
+    "REDIS_HOST": "redis",
+    "REDIS_PORT": "6379",
+    "RABBITMQ_HOST": "rabbitmq",
+    "RABBITMQ_PORT": "5672",
+    "RABBITMQ_USERNAME": "open_management",
+    "RABBITMQ_PASSWORD": "open_management",
+    "RABBITMQ_VHOST": "/",
+    "MINIO_ENDPOINT": "http://minio:9000",
+    "MINIO_ACCESS_KEY": "minioadmin",
+    "MINIO_SECRET_KEY": "minioadmin",
+    "MINIO_BUCKET": "open-management"
+  },
+  "forwardPorts": [
+    3000,
+    8080,
+    3306,
+    6379,
+    5672,
+    15672,
+    9000,
+    9001
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "frontend"
+    },
+    "8080": {
+      "label": "backend"
+    },
+    "3306": {
+      "label": "mysql"
+    },
+    "6379": {
+      "label": "redis"
+    },
+    "5672": {
+      "label": "rabbitmq"
+    },
+    "15672": {
+      "label": "rabbitmq-management"
+    },
+    "9000": {
+      "label": "minio-api"
+    },
+    "9001": {
+      "label": "minio-console"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "maven.executable.preferMavenWrapper": false,
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "files.watcherExclude": {
+          "**/target/**": true,
+          "**/node_modules/**": true
+        }
+      },
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-boot-dev-pack",
+        "Vue.volar",
+        "ms-azuretools.vscode-docker",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

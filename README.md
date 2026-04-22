@@ -144,6 +144,26 @@ npm run dev
 
 默认访问：http://localhost:5173
 
+### Dev Container（VS Code / Dev Containers）
+
+仓库已包含 `.devcontainer/` 配置，可直接在 VS Code 中执行 `Dev Containers: Reopen in Container`。
+
+开发容器会提供以下环境：
+
+- Java 17 + Maven
+- Node.js 20 + npm
+- MySQL 8
+- Redis 7
+- RabbitMQ 3（管理台端口 `15672`）
+- MinIO（API `9000`，控制台 `9001`，默认桶 `open-management`）
+
+容器创建完成后会自动安装 `frontend/` 与 `desktop/` 的 Node 依赖。常用启动命令：
+
+```bash
+cd backend && mvn spring-boot:run -pl om-app -am
+cd frontend && npm run dev -- --host 0.0.0.0
+```
+
 ## 7. 文档入口
 
 - [开发进度追踪](TODO.md)
