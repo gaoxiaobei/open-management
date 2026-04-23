@@ -27,9 +27,10 @@ public class ExpenseApplyController {
     }
 
     @GetMapping("/my")
-    public R<PageResult<OaExpenseApply>> myApplies(@RequestParam Long applicantId, PageQuery pageQuery) {
-        ensureSelfOrAdmin(applicantId);
-        return R.ok(expenseApplyService.myApplies(applicantId, pageQuery));
+    public R<PageResult<OaExpenseApply>> myApplies(@RequestParam(required = false) Long applicantId, PageQuery pageQuery) {
+        Long targetId = applicantId != null ? applicantId : requireCurrentUserId();
+        ensureSelfOrAdmin(targetId);
+        return R.ok(expenseApplyService.myApplies(targetId, pageQuery));
     }
 
     private Long requireCurrentUserId() {

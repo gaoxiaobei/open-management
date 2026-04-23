@@ -114,7 +114,7 @@ VALUES
 --    password_hash = bcrypt('Admin@123')，首次登录后请立即修改密码
 -- ----------------------------
 INSERT IGNORE INTO sys_user (id, username, password_hash, real_name, mobile, email, dept_id, position_id, status, last_login_time, created_by, created_at, updated_by, updated_at, deleted_flag, version_no)
-VALUES (1, 'admin', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAtu', '系统管理员', NULL, NULL, 1, NULL, 'ENABLED', NULL, 1, NOW(), 1, NOW(), 0, 0);
+VALUES (1, 'admin', '$2a$10$yUUH.Ll0CxnsD8xUN9CVjeKs.NGxde.EiLLzz.NtMwbYClKR89NS.', '系统管理员', NULL, NULL, 1, NULL, 'ENABLED', NULL, 1, NOW(), 1, NOW(), 0, 0);
 
 -- ----------------------------
 -- 6. 用户-角色关联：admin -> SUPER_ADMIN

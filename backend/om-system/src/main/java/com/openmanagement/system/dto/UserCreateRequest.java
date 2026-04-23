@@ -8,7 +8,6 @@ import java.util.List;
 @Data
 public class UserCreateRequest {
 
-    @NotBlank(message = "Username must not be blank")
     private String username;
 
     @NotBlank(message = "Real name must not be blank")

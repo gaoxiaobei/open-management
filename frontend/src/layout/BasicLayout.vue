@@ -99,7 +99,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import dayjs from 'dayjs'
-import { ArrowDown, Bell, Box, Connection, Document, DocumentChecked, Menu, OfficeBuilding, Odometer, Setting, User } from '@element-plus/icons-vue'
+import { ArrowDown, Bell, Box, Connection, Document, DocumentChecked, Menu, OfficeBuilding, Odometer, Setting, User, FolderOpened, List } from '@element-plus/icons-vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMessageStore } from '@/stores/message'
@@ -132,21 +132,29 @@ const navSections: NavSection[] = [
       { path: '/dashboard', label: '工作台', caption: '今日运行态势', icon: Odometer },
       { path: '/messages', label: '消息中心', caption: '通知与提醒收口', icon: Bell },
       { path: '/workflow/todo', label: '我的待办', caption: '当前审批动作', icon: Connection },
+      { path: '/workflow/manage', label: '流程管理', caption: '流程定义与实例', icon: List },
     ],
   },
   {
     title: 'Administration',
     items: [
-      { path: '/system/users', label: '系统管理', caption: '用户、角色、配置', icon: Setting },
-      { path: '/org/dept', label: '组织架构', caption: '部门与岗位结构', icon: OfficeBuilding },
-      { path: '/audit/login-logs', label: '日志审计', caption: '登录与操作追踪', icon: DocumentChecked },
+      { path: '/system/users', label: '用户管理', caption: '账号与权限', icon: User },
+      { path: '/system/roles', label: '角色管理', caption: '角色与菜单分配', icon: Setting },
+      { path: '/system/menus', label: '菜单管理', caption: '菜单与权限码', icon: Document },
+      { path: '/system/dicts', label: '字典管理', caption: '数据字典维护', icon: List },
+      { path: '/system/configs', label: '参数配置', caption: '系统参数设置', icon: Setting },
+      { path: '/org/dept', label: '部门管理', caption: '组织部门结构', icon: OfficeBuilding },
+      { path: '/org/positions', label: '岗位管理', caption: '岗位设置', icon: User },
+      { path: '/audit/login-logs', label: '登录日志', caption: '登录记录追踪', icon: DocumentChecked },
+      { path: '/audit/operate-logs', label: '操作日志', caption: '操作记录追踪', icon: DocumentChecked },
+      { path: '/files', label: '文件中心', caption: '文件上传管理', icon: FolderOpened },
     ],
   },
   {
     title: 'Business',
     items: [
       { path: '/hr/employees', label: '员工档案', caption: '人事基础信息', icon: User },
-      { path: '/oa/leave', label: 'OA 审批', caption: '请假与流程申请', icon: Document },
+      { path: '/oa/leave', label: '请假申请', caption: '请假流程申请', icon: Document },
       { path: '/asset', label: '资产管理', caption: '台账与领用记录', icon: Box },
     ],
   },

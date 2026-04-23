@@ -27,9 +27,10 @@ public class TravelApplyController {
     }
 
     @GetMapping("/my")
-    public R<PageResult<OaTravelApply>> myApplies(@RequestParam Long applicantId, PageQuery pageQuery) {
-        ensureSelfOrAdmin(applicantId);
-        return R.ok(travelApplyService.myApplies(applicantId, pageQuery));
+    public R<PageResult<OaTravelApply>> myApplies(@RequestParam(required = false) Long applicantId, PageQuery pageQuery) {
+        Long targetId = applicantId != null ? applicantId : requireCurrentUserId();
+        ensureSelfOrAdmin(targetId);
+        return R.ok(travelApplyService.myApplies(targetId, pageQuery));
     }
 
     private Long requireCurrentUserId() {

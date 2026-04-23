@@ -27,9 +27,10 @@ public class LeaveApplyController {
     }
 
     @GetMapping("/my")
-    public R<PageResult<OaLeaveApply>> myApplies(@RequestParam Long applicantId, PageQuery pageQuery) {
-        ensureSelfOrAdmin(applicantId);
-        return R.ok(leaveApplyService.myApplies(applicantId, pageQuery));
+    public R<PageResult<OaLeaveApply>> myApplies(@RequestParam(required = false) Long applicantId, PageQuery pageQuery) {
+        Long targetId = applicantId != null ? applicantId : requireCurrentUserId();
+        ensureSelfOrAdmin(targetId);
+        return R.ok(leaveApplyService.myApplies(targetId, pageQuery));
     }
 
     private Long requireCurrentUserId() {
