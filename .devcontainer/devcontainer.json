@@ -23,29 +23,24 @@
     "DB_PORT": "3306",
     "DB_NAME": "open_management",
     "DB_USERNAME": "root",
-    "DB_PASSWORD": "root",
+    "DB_PASSWORD": "Dev0nly!2024",
     "REDIS_HOST": "redis",
     "REDIS_PORT": "6379",
+    "REDIS_PASSWORD": "Dev0nly!Redis2024",
     "RABBITMQ_HOST": "rabbitmq",
     "RABBITMQ_PORT": "5672",
-    "RABBITMQ_USERNAME": "open_management",
-    "RABBITMQ_PASSWORD": "open_management",
+    "RABBITMQ_USERNAME": "open_mgmt",
+    "RABBITMQ_PASSWORD": "Dev0nly!Mq2024",
     "RABBITMQ_VHOST": "/",
     "MINIO_ENDPOINT": "http://minio:9000",
-    "MINIO_ACCESS_KEY": "minioadmin",
-    "MINIO_SECRET_KEY": "minioadmin",
+    "MINIO_ACCESS_KEY": "devops_minio",
+    "MINIO_SECRET_KEY": "Dev0nly!Minio2024",
     "MINIO_BUCKET": "open-management",
     "ELECTRON_MIRROR": "https://npmmirror.com/mirrors/electron/"
   },
   "forwardPorts": [
     3000,
-    8080,
-    3306,
-    6379,
-    5672,
-    15672,
-    9000,
-    9001
+    8080
   ],
   "portsAttributes": {
     "3000": {
@@ -53,24 +48,6 @@
     },
     "8080": {
       "label": "backend"
-    },
-    "3306": {
-      "label": "mysql"
-    },
-    "6379": {
-      "label": "redis"
-    },
-    "5672": {
-      "label": "rabbitmq"
-    },
-    "15672": {
-      "label": "rabbitmq-management"
-    },
-    "9000": {
-      "label": "minio-api"
-    },
-    "9001": {
-      "label": "minio-console"
     }
   },
   "customizations": {
