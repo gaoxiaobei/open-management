@@ -157,6 +157,10 @@ npm run dev
 - RabbitMQ 3（管理台端口 `15672`）
 - MinIO（API `9000`，控制台 `9001`，默认桶 `open-management`）
 
+基础设施端口在宿主机侧仅绑定到 `127.0.0.1`，避免开发容器把 MySQL、Redis、RabbitMQ、MinIO 直接暴露到外部网络。
+
+> 若你在不同版本的 `.devcontainer` 凭据之间切换过，已有命名卷中的账号口令不会自动迁移；此时请删除对应容器/volume 后再重建开发容器。
+
 容器创建完成后会自动安装 `frontend/` 与 `desktop/` 的 Node 依赖。
 
 > ⚠ 若 Electron 下载超时，容器会跳过 desktop 安装（不影响 Web 端开发）。如需桌面端，可在容器内手动执行：
