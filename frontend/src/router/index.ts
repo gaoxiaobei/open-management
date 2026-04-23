@@ -115,6 +115,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/asset/AssetListView.vue'),
         meta: { title: '资产台账' },
       },
+      {
+        path: 'files',
+        name: 'Files',
+        component: () => import('@/views/file/FileCenterView.vue'),
+        meta: { title: '文件中心' },
+      },
     ],
   },
   {

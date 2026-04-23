@@ -284,7 +284,7 @@ async function submitForm() {
   try {
     if (dialogMode.value === 'create') {
       await createUser(form)
-      ElMessage.success('用户已创建，初始密码为 Admin@123')
+      ElMessage.success('用户已创建，初始密码为 Om@123456')
     } else if (editingId.value) {
       await updateUser(editingId.value, form)
       ElMessage.success('用户信息已更新')
@@ -297,7 +297,7 @@ async function submitForm() {
 }
 
 async function handleResetPassword(id: number) {
-  await ElMessageBox.confirm('确定将该用户密码重置为默认密码 Admin@123 吗？', '提示', {
+  await ElMessageBox.confirm('确定将该用户密码重置为默认密码 Om@123456 吗？', '提示', {
     type: 'warning',
   })
   await resetPassword(id)
