@@ -1,143 +1,183 @@
 <template>
-  <div class="dashboard-page">
-    <section class="hero-panel">
-      <div class="hero-copy">
-        <span class="hero-kicker">Operations Snapshot</span>
-        <h2>今日运营状态</h2>
-        <p>
-          从消息提醒、流程待办到登录审计，关键协同状态被压缩在一个总览页里，适合作为进入系统后的第一屏。
-        </p>
+  <div class="page-container">
+    <!-- 页面标题栏 -->
+    <div class="page-title-bar">
+      <div>
+        <h2 class="page-title">首页总览</h2>
+        <p class="page-subtitle">{{ today }} &nbsp;·&nbsp; 欢迎回来，{{ displayName }}</p>
+      </div>
+      <el-button :icon="Refresh" @click="loadDashboard" :loading="refreshing" size="small">
+        刷新数据
+      </el-button>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stat-row">
+      <div v-for="card in statCards" :key="card.title" class="stat-card" :class="card.cls">
+        <div class="stat-card-icon">
+          <el-icon><component :is="card.icon" /></el-icon>
+        </div>
+        <div class="stat-card-body">
+          <div class="stat-card-value">{{ card.value }}</div>
+          <div class="stat-card-title">{{ card.title }}</div>
+          <div class="stat-card-hint">{{ card.hint }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="dashboard-main">
+      <!-- 左列 -->
+      <div class="dashboard-col-main">
+        <!-- 消息分布图 -->
+        <el-card class="dash-card">
+          <template #header>
+            <div class="dash-card-header">
+              <span class="dash-card-title">消息分布统计</span>
+              <span class="dash-card-meta">最近 8 条消息</span>
+            </div>
+          </template>
+          <div ref="chartRef" class="chart-area" />
+        </el-card>
+
+        <!-- 最新消息 -->
+        <el-card class="dash-card">
+          <template #header>
+            <div class="dash-card-header">
+              <span class="dash-card-title">最新消息</span>
+              <router-link to="/messages" class="dash-card-link">查看全部 ›</router-link>
+            </div>
+          </template>
+          <div v-if="recentMessages.length" class="msg-list">
+            <div v-for="item in recentMessages" :key="item.id" class="msg-item">
+              <div class="msg-type-tag" :class="`msg-type-${item.msgType?.toLowerCase()}`">
+                {{ messageTypeMap[item.msgType] || item.msgType }}
+              </div>
+              <div class="msg-body">
+                <div class="msg-title">{{ item.title }}</div>
+                <div class="msg-content">{{ item.content || '无附加内容' }}</div>
+              </div>
+              <div class="msg-time">{{ item.createdAt }}</div>
+            </div>
+          </div>
+          <div v-else class="empty-state">暂无消息记录</div>
+        </el-card>
       </div>
 
-      <div class="hero-focus">
-        <div class="focus-label">当前关注项</div>
-        <div class="focus-value">{{ unreadCount }}</div>
-        <div class="focus-text">条未读消息待处理</div>
-        <router-link to="/messages" class="focus-link">前往消息中心</router-link>
+      <!-- 右列 -->
+      <div class="dashboard-col-side">
+        <!-- 快捷入口 -->
+        <el-card class="dash-card">
+          <template #header>
+            <div class="dash-card-header">
+              <span class="dash-card-title">快捷入口</span>
+            </div>
+          </template>
+          <div class="shortcut-grid">
+            <router-link
+              v-for="shortcut in shortcuts"
+              :key="shortcut.path"
+              :to="shortcut.path"
+              class="shortcut-item"
+            >
+              <div class="shortcut-icon">
+                <el-icon><component :is="shortcut.icon" /></el-icon>
+              </div>
+              <div class="shortcut-label">{{ shortcut.title }}</div>
+            </router-link>
+          </div>
+        </el-card>
+
+        <!-- 当前待办 -->
+        <el-card class="dash-card">
+          <template #header>
+            <div class="dash-card-header">
+              <span class="dash-card-title">当前待办</span>
+              <router-link to="/workflow/todo" class="dash-card-link">查看全部 ›</router-link>
+            </div>
+          </template>
+          <div v-if="pendingTasks.length" class="todo-list">
+            <div v-for="task in pendingTasks" :key="task.id" class="todo-item">
+              <div class="todo-dot" />
+              <div class="todo-body">
+                <div class="todo-name">{{ task.taskName }}</div>
+                <div class="todo-meta">
+                  处理人：{{ task.assigneeId || '待领取' }}
+                  &nbsp;·&nbsp;
+                  {{ task.claimTime || '未领取' }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="empty-state">当前没有待办事项</div>
+        </el-card>
       </div>
-    </section>
-
-    <section class="stats-grid">
-      <article v-for="card in statCards" :key="card.title" class="stat-tile" :class="card.tone">
-        <div class="stat-top">
-          <component :is="card.icon" class="stat-icon" />
-          <span class="stat-label">{{ card.title }}</span>
-        </div>
-        <div class="stat-value">{{ card.value }}</div>
-        <p class="stat-hint">{{ card.hint }}</p>
-      </article>
-    </section>
-
-    <section class="dashboard-grid">
-      <el-card class="chart-card">
-        <template #header>
-          <div class="panel-heading">
-            <div>
-              <span class="panel-kicker">Message Map</span>
-              <h3>消息分布</h3>
-            </div>
-            <span class="panel-meta">最近 8 条消息样本</span>
-          </div>
-        </template>
-        <div ref="chartRef" class="chart" />
-      </el-card>
-
-      <el-card class="shortcut-card">
-        <template #header>
-          <div class="panel-heading">
-            <div>
-              <span class="panel-kicker">Fast Access</span>
-              <h3>快捷入口</h3>
-            </div>
-          </div>
-        </template>
-        <div class="shortcut-list">
-          <router-link v-for="shortcut in shortcuts" :key="shortcut.path" :to="shortcut.path" class="shortcut-item">
-            <component :is="shortcut.icon" class="shortcut-icon" />
-            <div>
-              <div class="shortcut-title">{{ shortcut.title }}</div>
-              <div class="shortcut-desc">{{ shortcut.desc }}</div>
-            </div>
-          </router-link>
-        </div>
-      </el-card>
-
-      <el-card class="feed-card">
-        <template #header>
-          <div class="panel-heading">
-            <div>
-              <span class="panel-kicker">Recent Messages</span>
-              <h3>最新消息</h3>
-            </div>
-          </div>
-        </template>
-        <div v-if="recentMessages.length" class="feed-list">
-          <article v-for="item in recentMessages" :key="item.id" class="feed-item">
-            <div class="feed-main">
-              <span class="feed-type">{{ messageTypeMap[item.msgType] || item.msgType }}</span>
-              <strong>{{ item.title }}</strong>
-              <p>{{ item.content || '无附加内容' }}</p>
-            </div>
-            <time>{{ item.createdAt }}</time>
-          </article>
-        </div>
-        <div v-else class="empty-copy">暂无消息记录。</div>
-      </el-card>
-
-      <el-card class="feed-card">
-        <template #header>
-          <div class="panel-heading">
-            <div>
-              <span class="panel-kicker">Workflow Queue</span>
-              <h3>当前待办</h3>
-            </div>
-          </div>
-        </template>
-        <div v-if="pendingTasks.length" class="feed-list">
-          <article v-for="task in pendingTasks" :key="task.id" class="feed-item">
-            <div class="feed-main">
-              <span class="feed-type">TASK</span>
-              <strong>{{ task.taskName }}</strong>
-              <p>处理人 {{ task.assigneeId || '-' }} · 状态 {{ task.status || '-' }}</p>
-            </div>
-            <time>{{ task.claimTime || '待领取' }}</time>
-          </article>
-        </div>
-        <div v-else class="empty-copy">当前没有待办事项。</div>
-      </el-card>
-    </section>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Bell, Connection, DataAnalysis, DocumentChecked, Promotion } from '@element-plus/icons-vue'
+import { Bell, Box, Connection, DataAnalysis, DocumentChecked, Promotion, Refresh, User } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import * as echarts from 'echarts'
+import dayjs from 'dayjs'
 import { pageLoginLogs } from '@/api/audit'
 import { getUnreadCount, pageMyMessages, type MessageVO } from '@/api/message'
 import { listPendingTasks, type WorkflowTaskVO } from '@/api/workflow'
+import { useUserStore } from '@/stores/user'
 
+const userStore = useUserStore()
 const chartRef = ref<HTMLDivElement>()
 const recentMessages = ref<MessageVO[]>([])
 const pendingTasks = ref<WorkflowTaskVO[]>([])
 const unreadCount = ref(0)
 const totalMessages = ref(0)
 const loginTotal = ref(0)
+const refreshing = ref(false)
 let chart: echarts.ECharts | null = null
 
+const today = computed(() => dayjs().format('YYYY年MM月DD日'))
+const displayName = computed(() => userStore.userInfo?.realName || userStore.userInfo?.username || '用户')
+
 const statCards = computed(() => [
-  { title: '未读消息', value: unreadCount.value, hint: '顶部消息中心与此同步', icon: Bell, tone: 'tone-brand' },
-  { title: '当前待办', value: pendingTasks.value.length, hint: '待办列表需要人工动作', icon: Connection, tone: 'tone-earth' },
-  { title: '消息总量', value: totalMessages.value, hint: '当前账户可见消息记录', icon: Promotion, tone: 'tone-neutral' },
-  { title: '登录日志', value: loginTotal.value, hint: '审计模块累计登录条目', icon: DocumentChecked, tone: 'tone-brand' },
+  {
+    title: '未读消息',
+    value: unreadCount.value,
+    hint: '待处理通知',
+    icon: Bell,
+    cls: 'stat-primary',
+  },
+  {
+    title: '当前待办',
+    value: pendingTasks.value.length,
+    hint: '需人工处理',
+    icon: Connection,
+    cls: 'stat-warning',
+  },
+  {
+    title: '消息总量',
+    value: totalMessages.value,
+    hint: '账户可见记录',
+    icon: Promotion,
+    cls: 'stat-info',
+  },
+  {
+    title: '登录日志',
+    value: loginTotal.value,
+    hint: '审计累计条目',
+    icon: DocumentChecked,
+    cls: 'stat-neutral',
+  },
 ])
 
 const shortcuts = [
-  { title: '消息中心', desc: '查看未读通知和审批提醒', path: '/messages', icon: Bell },
-  { title: '我的待办', desc: '处理流程任务与转办操作', path: '/workflow/todo', icon: Connection },
-  { title: '流程管理', desc: '查看流程定义与节点状态', path: '/workflow/manage', icon: DataAnalysis },
-  { title: '系统管理', desc: '维护账户、角色和菜单权限', path: '/system/users', icon: Promotion },
+  { title: '消息中心', path: '/messages', icon: Bell },
+  { title: '我的待办', path: '/workflow/todo', icon: Connection },
+  { title: '流程管理', path: '/workflow/manage', icon: DataAnalysis },
+  { title: '用户管理', path: '/system/users', icon: User },
+  { title: '员工档案', path: '/hr/employees', icon: User },
+  { title: '资产管理', path: '/asset', icon: Box },
 ]
 
 const messageTypeMap: Record<string, string> = {
@@ -148,6 +188,7 @@ const messageTypeMap: Record<string, string> = {
 }
 
 async function loadDashboard() {
+  refreshing.value = true
   const results = await Promise.allSettled([
     pageMyMessages({ pageNum: 1, pageSize: 8 }),
     getUnreadCount(),
@@ -161,55 +202,58 @@ async function loadDashboard() {
     recentMessages.value = messages.value.records
     totalMessages.value = messages.value.total
   }
-
   if (unread.status === 'fulfilled') {
     unreadCount.value = unread.value
   }
-
   if (tasks.status === 'fulfilled') {
     pendingTasks.value = tasks.value
   }
-
   if (loginLogs.status === 'fulfilled') {
     loginTotal.value = loginLogs.value.total
   }
 
-  if (results.some((item) => item.status === 'rejected')) {
-    ElMessage.warning('部分看板数据加载失败，已展示可用结果')
+  if (results.some((r) => r.status === 'rejected')) {
+    ElMessage.warning('部分数据加载失败，已展示可用结果')
   }
 
+  refreshing.value = false
   await nextTick()
   renderChart()
 }
 
 function renderChart() {
-  if (!chartRef.value) {
-    return
-  }
+  if (!chartRef.value) return
   chart ??= echarts.init(chartRef.value)
   const source = ['TODO', 'NOTICE', 'RESULT', 'ALERT'].map((type) => ({
     name: messageTypeMap[type] || type,
     value: recentMessages.value.filter((item) => item.msgType === type).length,
   }))
   chart.setOption({
-    tooltip: { trigger: 'item' },
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
     legend: {
       bottom: 0,
-      icon: 'circle',
-      textStyle: { color: '#58636a' },
+      icon: 'rect',
+      itemWidth: 10,
+      itemHeight: 10,
+      textStyle: { color: '#4a5568', fontSize: 12 },
     },
     series: [
       {
         type: 'pie',
-        radius: ['48%', '72%'],
+        radius: ['42%', '66%'],
+        center: ['50%', '44%'],
         avoidLabelOverlap: true,
-        label: { color: '#182126', formatter: '{b}: {c}' },
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fffaf4',
-          borderWidth: 4,
+        label: {
+          color: '#1a2332',
+          fontSize: 12,
+          formatter: '{b}: {c}',
         },
-        color: ['#0f5b52', '#c96f3b', '#d9b898', '#8a9ba8'],
+        itemStyle: {
+          borderRadius: 2,
+          borderColor: '#ffffff',
+          borderWidth: 2,
+        },
+        color: ['#1a3a5c', '#2563a8', '#4a7fb5', '#8aabcc'],
         data: source,
       },
     ],
@@ -233,305 +277,356 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.dashboard-page {
-  padding: clamp(18px, 2vw, 30px);
-  display: grid;
-  gap: 20px;
-}
-
-.hero-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) 280px;
-  gap: 24px;
-  padding: clamp(24px, 3vw, 36px);
-  border-radius: 30px;
-  background:
-    radial-gradient(circle at top right, rgba(201, 111, 59, 0.22), transparent 28%),
-    linear-gradient(135deg, rgba(18, 58, 55, 0.96), rgba(11, 37, 35, 0.96));
-  color: rgba(255, 247, 238, 0.92);
-  box-shadow: 0 28px 54px rgba(16, 39, 37, 0.22);
-}
-
-.hero-kicker,
-.panel-kicker,
-.focus-label,
-.feed-type {
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.hero-kicker {
-  font-size: 12px;
-  color: rgba(255, 247, 238, 0.58);
-}
-
-.hero-copy h2,
-.panel-heading h3 {
-  margin: 8px 0 0;
-  font-family: var(--om-display-font);
-  line-height: 1;
-}
-
-.hero-copy h2 {
-  font-size: clamp(40px, 5vw, 60px);
-}
-
-.hero-copy p {
-  max-width: 58ch;
-  margin: 14px 0 0;
-  color: rgba(255, 247, 238, 0.76);
-  line-height: 1.8;
-}
-
-.hero-focus {
-  padding: 24px;
-  border-radius: 24px;
-  background: rgba(255, 247, 238, 0.1);
-  border: 1px solid rgba(255, 247, 238, 0.12);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.focus-label,
-.panel-kicker {
-  font-size: 11px;
-}
-
-.focus-value {
-  margin-top: 14px;
-  font-family: var(--om-display-font);
-  font-size: 72px;
-  line-height: 1;
-}
-
-.focus-text {
-  color: rgba(255, 247, 238, 0.72);
-}
-
-.focus-link {
-  display: inline-flex;
-  align-self: flex-start;
-  margin-top: 18px;
-  padding: 12px 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #17312f;
-  text-decoration: none;
-  font-weight: 700;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.stat-tile {
-  min-height: 180px;
-  padding: 22px;
-  border-radius: 26px;
-  border: 1px solid rgba(24, 33, 38, 0.08);
-  box-shadow: 0 18px 34px rgba(42, 34, 24, 0.09);
-}
-
-.tone-brand {
-  background:
-    radial-gradient(circle at top, rgba(15, 91, 82, 0.18), transparent 48%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 242, 234, 0.84));
-}
-
-.tone-earth {
-  background:
-    radial-gradient(circle at top, rgba(201, 111, 59, 0.2), transparent 48%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(248, 239, 230, 0.92));
-}
-
-.tone-neutral {
-  background:
-    radial-gradient(circle at top, rgba(27, 34, 37, 0.08), transparent 44%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 242, 234, 0.88));
-}
-
-.stat-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.stat-icon {
-  font-size: 18px;
-  color: var(--om-brand);
-}
-
-.stat-label {
-  color: var(--om-ink-soft);
-  font-size: 13px;
-}
-
-.stat-value {
-  margin-top: 22px;
-  font-family: var(--om-display-font);
-  font-size: 56px;
-  line-height: 1;
-}
-
-.stat-hint {
-  margin: 14px 0 0;
-  color: var(--om-ink-soft);
-  line-height: 1.7;
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.9fr);
-  gap: 20px;
-}
-
-.chart-card,
-.shortcut-card,
-.feed-card {
-  border-radius: 26px;
-}
-
-.panel-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.panel-heading h3 {
-  font-size: 34px;
-}
-
-.panel-meta {
-  color: var(--om-ink-soft);
-  font-size: 13px;
-}
-
-.chart {
-  height: 320px;
-}
-
-.shortcut-list,
-.feed-list {
-  display: grid;
-  gap: 12px;
-}
-
-.shortcut-item,
-.feed-item {
-  border-radius: 18px;
-  text-decoration: none;
-  color: inherit;
-}
-
-.shortcut-item {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
-  gap: 14px;
-  align-items: center;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(24, 33, 38, 0.06);
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.shortcut-item:hover {
-  transform: translateY(-2px);
-  border-color: rgba(15, 91, 82, 0.24);
-}
-
-.shortcut-icon {
-  width: 48px;
-  height: 48px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(15, 91, 82, 0.08);
-  color: var(--om-brand);
-}
-
-.shortcut-title {
-  font-weight: 700;
-}
-
-.shortcut-desc {
-  margin-top: 4px;
-  color: var(--om-ink-soft);
-  line-height: 1.6;
-}
-
-.feed-card {
-  align-self: start;
-}
-
-.feed-item {
+/* ─── 页面标题栏 ─── */
+.page-title-bar {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 18px;
-  background: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(24, 33, 38, 0.06);
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--om-border-light);
 }
 
-.feed-main strong {
-  display: block;
-  margin-top: 10px;
-  font-size: 16px;
-}
-
-.feed-main p {
-  margin: 8px 0 0;
-  color: var(--om-ink-soft);
-  line-height: 1.7;
-}
-
-.feed-type {
-  color: var(--om-brand);
-  font-size: 11px;
+.page-title {
+  font-family: var(--om-font-serif);
+  font-size: 22px;
   font-weight: 700;
+  color: var(--om-text);
+  margin: 0;
+  letter-spacing: 0.02em;
 }
 
-.feed-item time,
-.empty-copy {
-  color: var(--om-ink-soft);
+.page-subtitle {
+  margin: 4px 0 0;
   font-size: 13px;
+  color: var(--om-text-muted);
 }
 
-.empty-copy {
-  padding: 26px 8px 6px;
+/* ─── 统计卡片行 ─── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
+.stat-card {
+  background: var(--om-surface);
+  border: 1px solid var(--om-border);
+  border-radius: var(--om-radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  box-shadow: var(--om-shadow-sm);
+}
+
+.stat-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--om-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.stat-primary .stat-card-icon {
+  background: var(--om-primary-pale);
+  color: var(--om-primary);
+}
+
+.stat-warning .stat-card-icon {
+  background: #fef3c7;
+  color: var(--om-warning);
+}
+
+.stat-info .stat-card-icon {
+  background: #dbeafe;
+  color: var(--om-info);
+}
+
+.stat-neutral .stat-card-icon {
+  background: #f1f5f9;
+  color: var(--om-text-secondary);
+}
+
+.stat-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-card-value {
+  font-family: var(--om-font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--om-text);
+  line-height: 1;
+}
+
+.stat-card-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--om-text-secondary);
+  margin-top: 6px;
+}
+
+.stat-card-hint {
+  font-size: 12px;
+  color: var(--om-text-muted);
+  margin-top: 3px;
+}
+
+/* ─── 主内容区 ─── */
+.dashboard-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.dashboard-col-main,
+.dashboard-col-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ─── 卡片 ─── */
+.dash-card {
+  border: 1px solid var(--om-border);
+  border-radius: var(--om-radius-md);
+  background: var(--om-surface);
+  box-shadow: var(--om-shadow-sm);
+}
+
+.dash-card :deep(.el-card__header) {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--om-border-light);
+  background: #fafbfc;
+}
+
+.dash-card :deep(.el-card__body) {
+  padding: 16px;
+}
+
+.dash-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dash-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--om-text);
+}
+
+.dash-card-meta {
+  font-size: 12px;
+  color: var(--om-text-muted);
+}
+
+.dash-card-link {
+  font-size: 12px;
+  color: var(--om-primary);
+  text-decoration: none;
+}
+
+.dash-card-link:hover {
+  text-decoration: underline;
+}
+
+/* ─── 图表 ─── */
+.chart-area {
+  height: 280px;
+}
+
+/* ─── 消息列表 ─── */
+.msg-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.msg-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--om-border-light);
+}
+
+.msg-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.msg-type-tag {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--om-radius-sm);
+  margin-top: 2px;
+}
+
+.msg-type-todo {
+  background: var(--om-primary-pale);
+  color: var(--om-primary);
+}
+
+.msg-type-notice {
+  background: #dbeafe;
+  color: var(--om-info);
+}
+
+.msg-type-result {
+  background: #dcfce7;
+  color: var(--om-success);
+}
+
+.msg-type-alert {
+  background: var(--om-accent-pale);
+  color: var(--om-accent);
+}
+
+.msg-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.msg-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--om-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msg-content {
+  font-size: 12px;
+  color: var(--om-text-muted);
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msg-time {
+  font-size: 11px;
+  color: var(--om-text-disabled);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ─── 快捷入口 ─── */
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.shortcut-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border: 1px solid var(--om-border-light);
+  border-radius: var(--om-radius-md);
+  text-decoration: none;
+  color: var(--om-text-secondary);
+  transition: all 0.12s;
+  background: #fafbfc;
+}
+
+.shortcut-item:hover {
+  background: var(--om-primary-pale);
+  border-color: var(--om-primary);
+  color: var(--om-primary);
+  text-decoration: none;
+}
+
+.shortcut-icon {
+  font-size: 20px;
+}
+
+.shortcut-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ─── 待办列表 ─── */
+.todo-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--om-border-light);
+}
+
+.todo-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.todo-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--om-primary);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.todo-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--om-text);
+}
+
+.todo-meta {
+  font-size: 12px;
+  color: var(--om-text-muted);
+  margin-top: 3px;
+}
+
+/* ─── 空状态 ─── */
+.empty-state {
+  padding: 24px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--om-text-disabled);
+}
+
+/* ─── 响应式 ─── */
 @media (max-width: 1200px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .dashboard-grid {
-    grid-template-columns: 1fr;
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 900px) {
-  .hero-panel {
+  .dashboard-main {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 700px) {
-  .dashboard-page {
-    padding: 16px;
+@media (max-width: 640px) {
+  .stat-row {
+    grid-template-columns: 1fr 1fr;
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .panel-heading,
-  .feed-item {
+  .page-title-bar {
     flex-direction: column;
+    gap: 8px;
   }
 }
 </style>
