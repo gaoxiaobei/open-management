@@ -16,6 +16,7 @@ dist/
 # Electron build
 desktop/dist/
 desktop/out/
+package-lock.json
 
 # OS
 .DS_Store
@@ -23,3 +24,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Coding agents
+.codex
