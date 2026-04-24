@@ -16,7 +16,11 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="deploymentTime" label="部署时间" min-width="180" />
+            <el-table-column label="部署时间" min-width="180">
+              <template #default="{ row }">
+                {{ formatTime(row.deploymentTime) }}
+              </template>
+            </el-table-column>
           </el-table>
         </el-card>
       </el-col>
@@ -61,12 +65,17 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import dayjs from 'dayjs'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import {
   listProcessDefinitions,
   startProcess,
   type ProcessDefinitionVO,
 } from '@/api/workflow'
+
+function formatTime(time?: string) {
+  return time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : '-'
+}
 
 const loading = ref(false)
 const submitting = ref(false)

@@ -124,10 +124,55 @@ public class LoginServiceImpl implements LoginService {
         if (attrs != null) {
             String userAgent = attrs.getRequest().getHeader("User-Agent");
             log.setIpAddr(IpUtils.getIpAddr(attrs.getRequest()));
-            log.setBrowser(userAgent);
-            log.setOs(userAgent);
+            log.setBrowser(truncate(parseBrowser(userAgent), 500));
+            log.setOs(truncate(parseOs(userAgent), 500));
         }
         loginLogService.recordLogin(log);
+    }
+
+    private String parseBrowser(String userAgent) {
+        if (userAgent == null || userAgent.isEmpty()) return "Unknown";
+        if (userAgent.contains("Edg/")) return "Edge " + extractVersion(userAgent, "Edg/");
+        if (userAgent.contains("Chrome/")) return "Chrome " + extractVersion(userAgent, "Chrome/");
+        if (userAgent.contains("Firefox/")) return "Firefox " + extractVersion(userAgent, "Firefox/");
+        if (userAgent.contains("Safari/") && !userAgent.contains("Chrome")) return "Safari " + extractVersion(userAgent, "Version/");
+        return "Other";
+    }
+
+    private String parseOs(String userAgent) {
+        if (userAgent == null || userAgent.isEmpty()) return "Unknown";
+        if (userAgent.contains("Windows NT 10.0")) return "Windows 10";
+        if (userAgent.contains("Windows NT 6.3")) return "Windows 8.1";
+        if (userAgent.contains("Windows NT 6.2")) return "Windows 8";
+        if (userAgent.contains("Windows NT 6.1")) return "Windows 7";
+        if (userAgent.contains("Windows")) return "Windows";
+        if (userAgent.contains("Mac OS X")) return "macOS " + extractVersion(userAgent, "Mac OS X ");
+        if (userAgent.contains("Linux")) return "Linux";
+        if (userAgent.contains("Android")) return "Android " + extractVersion(userAgent, "Android ");
+        if (userAgent.contains("iPhone") || userAgent.contains("iPad")) return "iOS";
+        return "Other";
+    }
+
+    private String extractVersion(String userAgent, String prefix) {
+        int start = userAgent.indexOf(prefix);
+        if (start == -1) return "";
+        start += prefix.length();
+        int end = start;
+        while (end < userAgent.length() && (Character.isDigit(userAgent.charAt(end)) || userAgent.charAt(end) == '.' || userAgent.charAt(end) == '_')) {
+            end++;
+        }
+        String version = userAgent.substring(start, end).replace('_', '.');
+        int firstDot = version.indexOf('.');
+        if (firstDot != -1) {
+            int secondDot = version.indexOf('.', firstDot + 1);
+            if (secondDot != -1) version = version.substring(0, secondDot);
+        }
+        return version;
+    }
+
+    private String truncate(String value, int maxLen) {
+        if (value == null) return null;
+        return value.length() <= maxLen ? value : value.substring(0, maxLen);
     }
 
     private List<LoginResponse.MenuVO> toMenuVOList(List<SysMenu> menus) {

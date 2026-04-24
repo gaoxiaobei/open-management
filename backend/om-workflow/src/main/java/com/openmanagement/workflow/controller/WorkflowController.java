@@ -10,6 +10,7 @@ import com.openmanagement.workflow.domain.entity.WfTask;
 import com.openmanagement.workflow.service.ProcessInstanceService;
 import com.openmanagement.workflow.service.TaskService;
 import com.openmanagement.workflow.vo.ProcessProgressVO;
+import com.openmanagement.workflow.vo.WfTaskVO;
 import lombok.RequiredArgsConstructor;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.repository.Deployment;
@@ -57,7 +58,7 @@ public class WorkflowController {
     }
 
     @GetMapping("/tasks/pending")
-    public R<List<WfTask>> pendingTasks(@RequestParam(required = false) Long assigneeId) {
+    public R<List<WfTaskVO>> pendingTasks(@RequestParam(required = false) Long assigneeId) {
         Long currentUserId = requireCurrentUserId();
         Long targetAssigneeId = currentUserId;
         if (assigneeId != null) {

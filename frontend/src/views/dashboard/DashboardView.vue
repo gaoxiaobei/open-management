@@ -57,7 +57,7 @@
                 <div class="msg-title">{{ item.title }}</div>
                 <div class="msg-content">{{ item.content || '无附加内容' }}</div>
               </div>
-              <div class="msg-time">{{ item.createdAt }}</div>
+              <div class="msg-time">{{ formatTime(item.createdAt) }}</div>
             </div>
           </div>
           <div v-else class="empty-state">暂无消息记录</div>
@@ -102,9 +102,9 @@
               <div class="todo-body">
                 <div class="todo-name">{{ task.taskName }}</div>
                 <div class="todo-meta">
-                  处理人：{{ task.assigneeId || '待领取' }}
+                  处理人：{{ task.assigneeName || task.assigneeId || '待领取' }}
                   &nbsp;·&nbsp;
-                  {{ task.claimTime || '未领取' }}
+                  {{ task.claimTime ? formatTime(task.claimTime) : '未领取' }}
                 </div>
               </div>
             </div>
@@ -185,6 +185,10 @@ const messageTypeMap: Record<string, string> = {
   NOTICE: '通知',
   RESULT: '结果',
   ALERT: '告警',
+}
+
+function formatTime(time?: string) {
+  return time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : '-'
 }
 
 async function loadDashboard() {

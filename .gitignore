@@ -27,3 +27,4 @@ Thumbs.db
 
 # Coding agents
 .codex
+.playwright-mcp/

@@ -9,6 +9,7 @@ import com.openmanagement.workflow.domain.entity.WfTask;
 import com.openmanagement.workflow.mapper.TaskMapper;
 import com.openmanagement.workflow.service.TaskService;
 import com.openmanagement.workflow.support.WorkflowRuntimeSupport;
+import com.openmanagement.workflow.vo.WfTaskVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,11 +89,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<WfTask> listPendingTasks(Long assigneeId) {
-        return taskMapper.selectList(new LambdaQueryWrapper<WfTask>()
-                .eq(WfTask::getAssigneeId, assigneeId)
-                .eq(WfTask::getStatus, WorkflowRuntimeSupport.TASK_STATUS_PENDING)
-                .orderByDesc(WfTask::getCreatedAt, WfTask::getId));
+    public List<WfTaskVO> listPendingTasks(Long assigneeId) {
+        return taskMapper.selectPendingTasksWithAssigneeName(assigneeId);
     }
 
     private Long requireCurrentUserId() {
