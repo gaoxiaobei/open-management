@@ -168,8 +168,18 @@ const navSections: NavSection[] = [
 
 const pageTitle = computed(() => String(route.meta.title || '管理平台'))
 const sectionTitle = computed(() => {
-  const match = navSections.find((s) => s.items.some((item) => item.path === route.path))
-  return match?.title || '系统'
+  const path = route.path
+  if (path.startsWith('/workflow/') || path === '/workflow') return '工作台'
+  if (path.startsWith('/system/') || path === '/system') return '系统管理'
+  if (path.startsWith('/org/') || path === '/org') return '系统管理'
+  if (path.startsWith('/audit/') || path === '/audit') return '系统管理'
+  if (path.startsWith('/hr/') || path === '/hr') return '业务管理'
+  if (path.startsWith('/oa/') || path === '/oa') return '业务管理'
+  if (path === '/asset' || path.startsWith('/asset/')) return '业务管理'
+  if (path === '/files' || path.startsWith('/files/')) return '系统管理'
+  if (path === '/messages' || path.startsWith('/messages/')) return '工作台'
+  if (path === '/dashboard' || path.startsWith('/dashboard/')) return '工作台'
+  return '系统'
 })
 const displayName = computed(() => userStore.userInfo?.realName || userStore.userInfo?.username || '用户')
 

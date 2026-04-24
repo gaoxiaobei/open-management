@@ -21,7 +21,11 @@
         <el-table-column prop="requestUrl" label="地址" min-width="220" show-overflow-tooltip />
         <el-table-column prop="ipAddr" label="IP" min-width="140" />
         <el-table-column prop="costTime" label="耗时(ms)" width="110" />
-        <el-table-column prop="operateTime" label="操作时间" min-width="180" />
+        <el-table-column label="操作时间" min-width="180">
+          <template #default="{ row }">
+            {{ formatTime(row.operateTime) }}
+          </template>
+        </el-table-column>
       </el-table>
 
       <el-pagination
@@ -38,7 +42,12 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import dayjs from 'dayjs'
 import { pageOperateLogs, type OperateLogVO } from '@/api/audit'
+
+function formatTime(time?: string) {
+  return time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : '-'
+}
 
 const loading = ref(false)
 const tableData = ref<OperateLogVO[]>([])

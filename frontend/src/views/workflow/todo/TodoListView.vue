@@ -6,9 +6,21 @@
       <el-table :data="tableData" v-loading="loading" stripe>
         <el-table-column prop="taskName" label="任务名称" min-width="180" />
         <el-table-column prop="processInstanceId" label="流程实例ID" width="120" />
-        <el-table-column prop="assigneeId" label="处理人" width="100" />
-        <el-table-column prop="claimTime" label="领取时间" min-width="180" />
-        <el-table-column prop="status" label="状态" width="100" />
+        <el-table-column label="处理人" width="120">
+          <template #default="{ row }">
+            {{ row.assigneeName || row.assigneeId || '待领取' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="领取时间" min-width="180">
+          <template #default="{ row }">
+            {{ formatTime(row.claimTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="100">
+          <template #default="{ row }">
+            {{ statusMap[row.status] || row.status }}
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
             <el-button size="small" type="primary" @click="openActionDialog(row, 'APPROVE')">通过</el-button>
@@ -38,8 +50,20 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
 import { completeTask, listPendingTasks, type WorkflowTaskVO } from '@/api/workflow'
+
+function formatTime(time?: string) {
+  return time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : '-'
+}
+
+const statusMap: Record<string, string> = {
+  PENDING: '待处理',
+  IN_PROGRESS: '处理中',
+  COMPLETED: '已完成',
+  REJECTED: '已驳回',
+}
 
 type WorkflowAction = 'APPROVE' | 'REJECT' | 'TRANSFER'
 

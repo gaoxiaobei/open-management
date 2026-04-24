@@ -7,20 +7,21 @@ import { usePermissionStore } from '@/stores/permission'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref<string>(localStorage.getItem('token') || '')
-  const userInfo = ref<UserInfo | null>(null)
+  const storedUserInfo = localStorage.getItem('userInfo')
+  const userInfo = ref<UserInfo | null>(storedUserInfo ? JSON.parse(storedUserInfo) : null)
 
   async function doLogin(params: LoginParams) {
     const result = await login(params) as unknown as LoginResult
     token.value = result.token
     localStorage.setItem('token', result.token)
 
-    // Map backend LoginUserInfo (userId) to the frontend UserInfo shape (id)
     const raw = result.userInfo
     userInfo.value = {
       id: raw.userId,
       username: raw.username,
       realName: raw.realName,
     }
+    localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
 
     const permissionStore = usePermissionStore()
     permissionStore.setMenus((result.menus || []) as MenuItem[])
@@ -28,7 +29,6 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function doLogout() {
-    // Best-effort: always clear local state regardless of whether the backend call succeeds
     try {
       await logout()
     } catch {
@@ -37,6 +37,7 @@ export const useUserStore = defineStore('user', () => {
     token.value = ''
     userInfo.value = null
     localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
 
     const permissionStore = usePermissionStore()
     permissionStore.setMenus([])

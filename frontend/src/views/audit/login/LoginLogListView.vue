@@ -21,7 +21,11 @@
         <el-table-column prop="os" label="操作系统" min-width="140" />
         <el-table-column prop="loginStatus" label="状态" width="100" />
         <el-table-column prop="msg" label="结果" min-width="180" show-overflow-tooltip />
-        <el-table-column prop="loginTime" label="登录时间" min-width="180" />
+        <el-table-column label="登录时间" min-width="180">
+          <template #default="{ row }">
+            {{ formatTime(row.loginTime) }}
+          </template>
+        </el-table-column>
       </el-table>
 
       <el-pagination
@@ -38,7 +42,12 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import dayjs from 'dayjs'
 import { pageLoginLogs, type LoginLogVO } from '@/api/audit'
+
+function formatTime(time?: string) {
+  return time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : '-'
+}
 
 const loading = ref(false)
 const tableData = ref<LoginLogVO[]>([])

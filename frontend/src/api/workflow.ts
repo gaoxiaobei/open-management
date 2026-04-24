@@ -6,6 +6,7 @@ export interface WorkflowTaskVO {
   flowableTaskId: string
   taskName: string
   assigneeId?: number
+  assigneeName?: string
   claimTime?: string
   completeTime?: string
   action?: string
