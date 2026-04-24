@@ -306,8 +306,10 @@ async function handleResetPassword(id: number) {
 
 async function toggleStatus(row: UserVO) {
   const nextStatus = row.status === 'ENABLED' ? 'DISABLED' : 'ENABLED'
+  const label = nextStatus === 'ENABLED' ? '启用' : '停用'
+  await ElMessageBox.confirm(`确定${label}用户「${row.realName}」吗？`, '提示', { type: 'warning' })
   await changeUserStatus(row.id, nextStatus)
-  ElMessage.success(`用户已${nextStatus === 'ENABLED' ? '启用' : '停用'}`)
+  ElMessage.success(`用户已${label}`)
   await loadData()
 }
 

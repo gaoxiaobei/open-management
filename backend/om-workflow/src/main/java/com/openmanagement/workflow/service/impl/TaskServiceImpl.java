@@ -11,12 +11,14 @@ import com.openmanagement.workflow.service.TaskService;
 import com.openmanagement.workflow.support.WorkflowRuntimeSupport;
 import com.openmanagement.workflow.vo.WfTaskVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
@@ -31,12 +33,15 @@ public class TaskServiceImpl implements TaskService {
         Long currentUserId = requireCurrentUserId();
         WfTask localTask = taskMapper.selectById(taskId);
         if (localTask == null) {
+            log.warn("任务不存在: taskId={}", taskId);
             throw workflowRuntimeSupport.taskCompleteException("任务不存在");
         }
         if (!WorkflowRuntimeSupport.TASK_STATUS_PENDING.equals(localTask.getStatus())) {
+            log.warn("任务已处理: taskId={}, status={}", taskId, localTask.getStatus());
             throw workflowRuntimeSupport.taskCompleteException("任务已处理");
         }
         if (!canOperateTask(currentUserId, localTask)) {
+            log.warn("无权限处理任务: taskId={}, currentUser={}, assigneeId={}", taskId, currentUserId, localTask.getAssigneeId());
             throw new BusinessException(ErrorCode.FORBIDDEN.getCode(), "无权限处理该任务");
         }
 
@@ -44,6 +49,7 @@ public class TaskServiceImpl implements TaskService {
                 .taskId(localTask.getFlowableTaskId())
                 .singleResult();
         if (flowableTask == null) {
+            log.warn("Flowable任务不存在或已结束: flowableTaskId={}", localTask.getFlowableTaskId());
             throw workflowRuntimeSupport.taskCompleteException("Flowable任务不存在或已结束");
         }
 
@@ -84,7 +90,8 @@ public class TaskServiceImpl implements TaskService {
             taskMapper.updateById(localTask);
             workflowRuntimeSupport.refreshProcessStatus(localTask.getProcessInstanceId(), normalizedAction);
         } catch (Exception ex) {
-            throw workflowRuntimeSupport.taskCompleteException("任务处理失败", ex);
+            log.error("任务处理失败: taskId={}, flowableTaskId={}, action={}", taskId, localTask.getFlowableTaskId(), action, ex);
+            throw workflowRuntimeSupport.taskCompleteException("任务处理失败: " + ex.getMessage(), ex);
         }
     }
 

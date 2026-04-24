@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { uploadFile, getFileAccessUrl, deleteFile, type FileVO } from '@/api/file'
+import { listFiles, uploadFile, getFileDownloadUrl, deleteFile, type FileVO } from '@/api/file'
 
 const loading = ref(false)
 const files = ref<FileVO[]>([])
@@ -48,10 +48,20 @@ function formatSize(bytes: number) {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
 
+async function loadData() {
+  loading.value = true
+  try {
+    files.value = await listFiles()
+  } finally {
+    loading.value = false
+  }
+}
+
 async function handleUpload(file: File) {
   try {
     await uploadFile(file)
     ElMessage.success('上传成功')
+    await loadData()
   } catch {
     // error handled by interceptor
   }
@@ -59,22 +69,18 @@ async function handleUpload(file: File) {
 }
 
 async function handlePreview(row: FileVO) {
-  try {
-    const url = await getFileAccessUrl(row.id)
-    window.open(url, '_blank')
-  } catch {
-    // error handled by interceptor
-  }
+  window.open(getFileDownloadUrl(row.id), '_blank')
 }
 
 async function handleDelete(id: number) {
   await ElMessageBox.confirm('确定删除该文件吗？', '提示', { type: 'warning' })
   await deleteFile(id)
   ElMessage.success('文件已删除')
+  await loadData()
 }
 
 onMounted(() => {
-  // File list endpoint not available yet; keep empty
+  loadData()
 })
 </script>
 

@@ -44,7 +44,12 @@ public class OperateLogAspect {
             throwable = ex;
             throw ex;
         } finally {
-            saveOperateLog(point, result, throwable, startTime, System.currentTimeMillis() - start);
+            try {
+                saveOperateLog(point, result, throwable, startTime, System.currentTimeMillis() - start);
+            } catch (Exception logEx) {
+                org.slf4j.LoggerFactory.getLogger(OperateLogAspect.class)
+                        .warn("Failed to save operate log: {}", logEx.getMessage(), logEx);
+            }
         }
     }
 

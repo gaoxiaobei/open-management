@@ -1,7 +1,8 @@
 # Open Management — 开发进度追踪
 
-> 最后更新：2026-04-24  
-> 当前阶段：**第二期 · 业务模块开发**（路线图 Sprint 8–10）
+> 最后更新：2026-04-25  
+> 当前阶段：**第二期 · 业务模块开发**（路线图 Sprint 8–10）  
+> BUG 修复：15/15 全部修复（详见 report.log）
 
 ---
 
@@ -107,8 +108,9 @@
 |------|--------|------|
 | 数据库 | `sys_file`、`sys_message` 表（含于 V1.0.0） | ✅ |
 | 后端 `om-file` | 实体 `SysFile`；`FileMapper` | ✅ |
-| 后端 `om-file` | `FileStorageService/Impl` — MinIO 上传/下载/预签名 URL、DB 记录 | ✅ |
-| 后端 `om-file` | `FileController` — `/api/files/upload`、`/api/files/{id}/url`、`DELETE /api/files/{id}` | ✅（Controller 骨架） |
+| 后端 `om-file` | `FileStorageService/Impl` — MinIO 上传/下载代理/列表查询、DB 记录 | ✅ |
+| 后端 `om-file` | `FileController` — `/api/files/upload`、`GET /api/files`、`GET /api/files/{id}/download`、`DELETE /api/files/{id}` | ✅ |
+| 后端 `om-file` | `FileVO`、`FileDownload` VO 类 | ✅ |
 | 后端 `om-message` | 实体 `SysMessage`；`MessageMapper` | ✅ |
 | 后端 `om-message` | `MessageService/Impl` — 发送、已读/未读、分页查询 | ✅ |
 | 后端 `om-message` | `TodoGenerateService` — 待办生成 & 完成 | ✅ |
@@ -143,8 +145,8 @@
 | 后端 `om-hr` | `EmployeeService/Impl` — 档案分页查询（工号/姓名/部门/状态过滤）、新增（含工号唯一性校验）、更新、状态变更、删除 | ✅ |
 | 后端 `om-hr` | `EmployeeController` — `/api/hr/employees` CRUD + 状态变更（含 `@OperateLog`） | ✅ |
 | 后端 `om-hr` | `EmployeeChangeService`（入转调离记录） | ⬜ |
-| 前端 | 员工档案列表页骨架 | ✅ |
-| 前端 | 员工档案详情/编辑页、入转调离记录页 | ⬜ |
+| 前端 | 员工档案列表页 + 新增/编辑/删除对话框 | ✅ |
+| 前端 | 员工详情页、入转调离记录页 | ⬜ |
 
 ---
 
@@ -199,12 +201,11 @@
 2. **OA 工作流集成** — 补全请假/出差/报销 ServiceImpl 中触发 Flowable 流程的逻辑
 3. **员工异动 & 资产后续申请** — 实现 `EmployeeChangeService` 和资产归还/维修/报废 Service
 4. **测试完善** — 已完成 om-auth/om-system/om-oa/om-hr/om-asset/om-org/om-message 7 个模块共 168 条单元测试用例（详见 [docs/11-test-catalog.md](docs/11-test-catalog.md)），待补充 om-workflow/om-audit/om-file 联调与集成测试
-5. **文件模块联调** — 增加上传/删除/预签名 URL 接口集成测试
-6. **桌面端联动** — 接入真实登录和消息待办入口
+5. **桌面端联动** — 接入真实登录和消息待办入口
 
 ---
 
-## 统计快照（2026-04-24）
+## 统计快照（2026-04-25）
 
 | 模块 | 状态 | 完成度 |
 |------|------|--------|
@@ -214,12 +215,12 @@
 | om-system | ✅ 已完成（含 getConfigValue） | 100% |
 | om-org | ✅ 组织架构后端与前端页面完成 | 100% |
 | om-audit | ✅ 服务、AOP 与前端页面完成 | 100% |
-| om-file | ✅ MinIO 集成与文件服务实现完成 | 70% |
+| om-file | ✅ MinIO 上传/下载代理/列表查询/文件中心前端完成 | 95% |
 | om-message | ✅ 消息服务、消息中心与工作台入口完成 | 100% |
 | om-workflow | ✅ 工作流底座、WorkflowRuntimeSupport、流程定义列表与待办页面完成 | 100% |
-| om-hr | ✅ 员工档案 CRUD 与状态管理完成；异动记录待实现 | 70% |
+| om-hr | ✅ 员工档案 CRUD + 前端对话框完成；异动记录待实现 | 80% |
 | om-oa | ✅ 三类申请提交与分页查询完成；工作流集成待实现 | 60% |
 | om-asset | ✅ 资产台账 CRUD+状态管理、领用申请完成；归还/维修/报废待实现 | 65% |
-| 前端 | 🔨 平台底座页面完成，业务页面继续推进 | 65% |
+| 前端 | 🔨 平台底座 + 员工档案 CRUD + 文件中心完成，业务页面继续推进 | 70% |
 | 桌面端 | 🔨 骨架完成，打包配置待完善 | 20% |
 | 数据库 DDL | ✅ 全部脚本已就位 | 100% |

@@ -6,6 +6,7 @@ export interface EmployeeVO {
   empNo: string
   empName: string
   gender: string
+  idNo?: string
   deptId: number
   deptName: string
   positionId: number
@@ -38,4 +39,12 @@ export function createEmployee(data: EmployeeCreateParams) {
 
 export function getEmployee(id: number) {
   return request.get<EmployeeVO>(`/hr/employees/${id}`)
+}
+
+export function updateEmployee(id: number, data: EmployeeCreateParams) {
+  return request.put<void>(`/hr/employees/${id}`, data)
+}
+
+export function deleteEmployee(id: number) {
+  return request.delete<void>(`/hr/employees/${id}`)
 }

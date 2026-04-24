@@ -154,6 +154,10 @@ flowchart LR
 - `FileController`
 - `FileStorageService`
 - `FileBizRelationService`
+- `FileVO`
+- `FileDownload`
+
+文件下载采用后端代理模式：`FileController.download()` 从 MinIO 读取文件流并转发给浏览器，避免暴露 MinIO 内部地址（Dev Container 等网络隔离环境下 presigned URL 不可达）。
 
 ### 6.6 `message`
 

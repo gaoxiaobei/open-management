@@ -28,7 +28,7 @@ instance.interceptors.response.use(
     }
     if (code === 401) {
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      window.location.replace('/login')
     }
     ElMessage.error(message || '请求失败')
     return Promise.reject(new Error(message))
