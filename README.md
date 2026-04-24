@@ -100,7 +100,8 @@
    ├─ 07-api-specification.md
    ├─ 08-implementation-plan.md
    ├─ 09-document-control.md
-   └─ 10-roadmap.md
+   ├─ 10-roadmap.md
+   └─ 11-test-catalog.md
 ```
 
 ## 6. 快速开始（本地开发）
@@ -191,3 +192,4 @@ cd frontend && npm run dev -- --host 0.0.0.0
 - [接口设计说明书](docs/07-api-specification.md)
 - [项目实施计划](docs/08-implementation-plan.md)
 - [开发路线图](docs/10-roadmap.md)
+- [测试用例目录](docs/11-test-catalog.md)
