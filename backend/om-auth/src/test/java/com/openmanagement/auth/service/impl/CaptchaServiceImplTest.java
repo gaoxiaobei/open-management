@@ -31,7 +31,7 @@ class CaptchaServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        when(stringRedisTemplate.opsForValue()).thenReturn(valueOps);
+        lenient().when(stringRedisTemplate.opsForValue()).thenReturn(valueOps);
     }
 
     @Test
@@ -92,7 +92,7 @@ class CaptchaServiceImplTest {
     void validateCaptchaShouldBeCaseInsensitive() {
         when(valueOps.get(anyString())).thenReturn("sixd");
 
-        assertTrue(captchaService.validateCaptcha("key", "ABCD"));
+        assertTrue(captchaService.validateCaptcha("key", "SIXD"));
     }
 
     @Test
