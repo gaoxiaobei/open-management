@@ -9,6 +9,14 @@ import router from './router'
 
 const app = createApp(App)
 
+app.config.errorHandler = (err, _instance, info) => {
+  console.error('[Vue Error]', info, err)
+}
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Unhandled Rejection]', event.reason)
+})
+
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }

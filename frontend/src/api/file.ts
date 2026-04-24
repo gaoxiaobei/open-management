@@ -11,6 +11,10 @@ export interface FileVO {
   createdAt?: string
 }
 
+export function listFiles() {
+  return request.get<FileVO[]>('/files')
+}
+
 export function uploadFile(file: File, bizType?: string, bizId?: number) {
   const formData = new FormData()
   formData.append('file', file)
@@ -19,8 +23,8 @@ export function uploadFile(file: File, bizType?: string, bizId?: number) {
   return request.post<string>('/files/upload', formData)
 }
 
-export function getFileAccessUrl(id: number) {
-  return request.get<string>(`/files/${id}/url`)
+export function getFileDownloadUrl(id: number) {
+  return `/api/files/${id}/download`
 }
 
 export function deleteFile(id: number) {

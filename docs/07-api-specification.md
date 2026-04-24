@@ -205,6 +205,48 @@
 - `bizType`
 - `bizId`
 
+响应体：
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": "/api/files/1/download"
+}
+```
+
+### 6.8.1 查询文件列表
+
+`GET /api/files`
+
+响应体：
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "originalName": "report.pdf",
+      "contentType": "application/pdf",
+      "fileSize": 102400,
+      "bizType": null,
+      "bizId": null,
+      "createdAt": "2026-04-25T10:30:00"
+    }
+  ]
+}
+```
+
+### 6.8.2 下载/预览文件
+
+`GET /api/files/{id}/download`
+
+响应：文件二进制流，含 `Content-Type` 和 `Content-Disposition` 头。
+
+> 文件下载通过后端代理转发 MinIO 存储，浏览器无需直连 MinIO，适用于 Dev Container 等网络隔离环境。
+
 ### 6.9 发起流程
 
 `POST /api/workflow/process/start`

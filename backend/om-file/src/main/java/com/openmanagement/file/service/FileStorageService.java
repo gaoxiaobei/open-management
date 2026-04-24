@@ -1,6 +1,10 @@
 package com.openmanagement.file.service;
 
+import com.openmanagement.file.vo.FileDownload;
+import com.openmanagement.file.vo.FileVO;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public interface FileStorageService {
 
@@ -8,5 +12,7 @@ public interface FileStorageService {
 
     void delete(Long fileId);
 
-    String getAccessUrl(Long fileId);
+    FileDownload download(Long fileId);
+
+    List<FileVO> listFiles();
 }

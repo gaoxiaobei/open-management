@@ -59,11 +59,11 @@
 | om-system（用户/角色/菜单/字典/参数） | ✅ 已完成 |
 | om-org（组织架构） | ✅ 后端与前端管理页完成 |
 | om-audit（日志审计） | ✅ 后端服务、AOP 与前端页面完成 |
-| om-file（文件中心） | ✅ MinIO 集成与文件服务完成，联调待补充 |
+| om-file（文件中心） | ✅ MinIO 集成、文件上传/列表/下载代理完成 |
 | om-message（消息中心） | ✅ MessageService / TodoGenerateService / 前端消息中心完成 |
 | om-workflow（工作流） | ✅ Flowable 集成、待办页、流程详情页、流程管理页完成 |
-| om-hr / om-oa / om-asset | 🔨 骨架完成，Service 待实现 |
-| 前端（Vue 3） | 🔨 平台底座页面完成，业务模块页面持续补全 |
+| om-hr / om-oa / om-asset | 🔨 后端 CRUD 完成，前端业务页面持续补全 |
+| 前端（Vue 3） | 🔨 平台底座 + 员工档案 CRUD 完成，业务模块页面持续补全 |
 | 桌面端（Electron） | 🔨 骨架完成，打包配置待完善 |
 | 数据库 DDL（Flyway，6 个脚本） | ✅ 全部已就位 |
 
